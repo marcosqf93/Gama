@@ -34,11 +34,11 @@ body {
   text-align: center;
 }
 .auth-avatar {
-  width: 64px; height: 64px; border-radius: 999px; margin: 0 auto .75rem;
-  background: var(--gradient); color: #fff;
-  display: flex; align-items: center; justify-content: center;
-  box-shadow: 0 8px 24px rgba(17,99,59,.3);
+  width: 72px; height: 72px; border-radius: 999px; margin: 0 auto .75rem;
+  overflow: hidden; box-shadow: 0 8px 24px rgba(17,99,59,.3);
 }
+.auth-avatar-img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.dash-logo { width: 32px; height: 32px; border-radius: 999px; object-fit: cover; }
 .auth-name { margin: 0; font-size: 1.2rem; font-weight: 800; }
 .auth-role { margin: .15rem 0 1.2rem; font-size: .8rem; color: var(--muted); }
 .field { text-align: left; margin-bottom: .85rem; }
