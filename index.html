@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Imobiliária Geraldo Gama</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=DM+Serif+Display:opsz@9..40&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div id="site-header"></div>
+
+    <section class="hero parallax" id="home">
+      <div class="hero-overlay"></div>
+      <div class="container hero-content reveal">
+        <p class="eyebrow">Aquidauana e Anastácio - MS</p>
+        <h1>O imóvel certo, com atendimento de confiança.</h1>
+        <p>
+          Nova experiência digital da Imobiliária Geraldo Gama. Design moderno, mobile first e todos os imóveis
+          para venda e locação em um só lugar.
+        </p>
+        <div class="hero-actions">
+          <a href="#imoveis" class="btn btn-primary">Ver imóveis</a>
+          <a href="#contato" class="btn btn-ghost">Fale conosco</a>
+        </div>
+      </div>
+    </section>
+
+    <main>
+      <section class="section search-section reveal" id="imoveis">
+        <div class="container">
+          <div class="section-title-wrap">
+            <p class="eyebrow">Busca inteligente</p>
+            <h2>Encontre por tipo, cidade e finalidade</h2>
+          </div>
+          <div class="search-grid">
+            <label><span>Busca livre</span><input id="q" type="text" placeholder="Rua, bairro, referência" /></label>
+            <label
+              ><span>Tipo</span
+              ><select id="tipo">
+                <option value="">Todos</option>
+              </select></label
+            >
+            <label
+              ><span>Finalidade</span
+              ><select id="finalidade">
+                <option value="">Todas</option>
+                <option value="venda">Venda</option>
+                <option value="aluguel">Aluguel</option>
+                <option value="ambos">Ambos</option>
+              </select></label
+            >
+            <label
+              ><span>Cidade</span
+              ><select id="cidade">
+                <option value="">Todas</option>
+              </select></label
+            >
+          </div>
+          <div class="stats" id="stats"></div>
+          <div class="cards" id="cards"></div>
+          <div style="margin-top: 1rem; text-align: center">
+            <button id="load-more" class="btn btn-primary" type="button">Carregar mais</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="section institutional reveal" id="sobre">
+        <div class="container split">
+          <div>
+            <p class="eyebrow">Quem somos</p>
+            <h2>Experiência imobiliária com segurança e eficiência.</h2>
+            <p>
+              Nossa empresa atua em vários segmentos do ramo imobiliário, prestando serviços de intermediação de
+              vendas e administração de imóveis com eficiência e segurança.
+            </p>
+            <p>
+              Rapidamente nos destacamos em Aquidauana, Anastácio e região pela assessoria focada nas necessidades de
+              cada cliente.
+            </p>
+          </div>
+          <div class="badge-grid">
+            <article><strong>+80</strong><span>Imóveis ativos</span></article>
+            <article><strong>Verde</strong><span>Branding original mantido</span></article>
+            <article><strong>100%</strong><span>Layout responsivo</span></article>
+            <article><strong>MS</strong><span>Aquidauana e Anastácio</span></article>
+          </div>
+        </div>
+      </section>
+
+      <section class="section reveal" id="avaliacoes">
+        <div class="container reviews-box">
+          <div class="reviews-header">
+            <div>
+              <p class="eyebrow">Avaliações Google</p>
+              <h2>O que nossos clientes dizem.</h2>
+            </div>
+            <a class="btn btn-primary" href="https://www.google.com/search?q=Imobili%C3%A1ria+Geraldo+Gama+Aquidauana#" target="_blank" rel="noopener">Ver todas</a>
+          </div>
+          <div class="reviews-slider-wrap">
+            <div class="reviews-track" id="reviews-track">
+              <article class="review-card">
+                <div class="review-stars">★★★★★</div>
+                <blockquote>Lugar excelente, ambiente profissional, atendimento atencioso e disposto, ótimo serviço. Uma imobiliária de respeito. É um alívio e transmite o sentimento de confiança poder fechar negócio com eles.</blockquote>
+                <span class="review-author">— Victoria Mayumi Fernandes</span>
+                <span class="review-source">Google</span>
+              </article>
+              <article class="review-card">
+                <div class="review-stars">★★★★★</div>
+                <blockquote>Geraldo sempre muito correto e idôneo. Tenho imóvel com ele há 10 anos e nunca tive problema.</blockquote>
+                <span class="review-author">— Marcelo Mazetto</span>
+                <span class="review-source">Google</span>
+              </article>
+              <article class="review-card">
+                <div class="review-stars">★★★★★</div>
+                <blockquote>Excelente imobiliária! Ótimo atendimento e excelentes condições de locação.</blockquote>
+                <span class="review-author">— Andreza Flores</span>
+                <span class="review-source">Google</span>
+              </article>
+              <article class="review-card">
+                <div class="review-stars">★★★★★</div>
+                <blockquote>Não tenho o que reclamar, só agradecer! Excelente profissional e simpático. Ótimo atendimento.</blockquote>
+                <span class="review-author">— Elizandro dos Santos</span>
+                <span class="review-source">Google</span>
+              </article>
+              <article class="review-card">
+                <div class="review-stars">★★★★★</div>
+                <blockquote>Morei em uma kitnet da imobiliária em Aquidauana durante 2 anos e 4 meses, pessoal muito prestativo. Quando tinha algum problema, mandavam técnico para arrumar. Muito profissionais, Geraldo muito gente boa, só tenho o que agradecer!</blockquote>
+                <span class="review-author">— Bruna Kayela</span>
+                <span class="review-source">Google</span>
+              </article>
+              <article class="review-card">
+                <div class="review-stars">★★★★★</div>
+                <blockquote>Um atendimento de qualidade, muito prestativo e atencioso. Excelência no trabalho.</blockquote>
+                <span class="review-author">— Israel Santos</span>
+                <span class="review-source">Google</span>
+              </article>
+            </div>
+          </div>
+          <div class="review-dots" id="review-dots"></div>
+        </div>
+      </section>
+
+      <section class="section contact reveal" id="contato">
+        <div class="container contact-wrap">
+          <div>
+            <p class="eyebrow">Contato</p>
+            <h2>Vamos encontrar seu próximo imóvel.</h2>
+            <ul>
+              <li><strong>Endereço:</strong> Rua Roberto Scaff, 960 - Bairro Alto, Aquidauana-MS, CEP 79200-000</li>
+              <li><strong>Telefone:</strong> (67) 9.9812-6525</li>
+              <li><strong>WhatsApp:</strong> (67) 99812-6525</li>
+              <li><strong>E-mail:</strong> geraldogamaimv@gmail.com</li>
+              <li><strong>Segunda a sexta:</strong> 07:00-11:00 e 13:00-17:00</li>
+              <li><strong>Sábado:</strong> 07:00-11:00 | <strong>Domingo:</strong> Fechado</li>
+            </ul>
+          </div>
+          <form class="contact-form">
+            <label>Nome<input type="text" placeholder="Seu nome" /></label>
+            <label>Telefone<input type="tel" placeholder="(00) 00000-0000" /></label>
+            <label>Mensagem<textarea rows="4" placeholder="Conte o que você procura"></textarea></label>
+            <button type="button" class="btn btn-primary">Enviar interesse</button>
+          </form>
+        </div>
+      </section>
+    </main>
+
+    <div id="site-footer"></div>
+    <script src="components.js"></script>
+    <script src="imoveis-data.js"></script>
+    <script src="imoveis-enrichment.js"></script>
+    <script src="script.js"></script>
+  </body>
+</html>
