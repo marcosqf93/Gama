@@ -1,10 +1,15 @@
 const crypto = require("crypto");
 const jwt = require("jsonwebtoken");
+const sgMail = require("@sendgrid/mail");
 const User = require("../models/User");
 const PasswordReset = require("../models/PasswordReset");
 const auth = require("../middleware/auth");
 
 const router = require("express").Router();
+
+if (process.env.SENDGRID_API_KEY) {
+  sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+}
 
 function signToken(user) {
   return jwt.sign({ id: user._id, email: user.email }, process.env.JWT_SECRET, {
@@ -50,11 +55,29 @@ router.post("/forgot-password", async (req, res) => {
       expiresAt: new Date(Date.now() + 60 * 60 * 1000),
     });
     const resetLink = `${process.env.BASE_URL || "http://localhost:3000"}/admin/reset-password/${token}`;
-    console.log("Password reset link:", resetLink);
-    res.json({
-      message: "Link de redefinição enviado para o email.",
-      debug: resetLink,
-    });
+
+    if (process.env.SENDGRID_API_KEY) {
+      try {
+        await sgMail.send({
+          to: user.email,
+          from: process.env.SENDGRID_FROM || user.email,
+          subject: "Redefinição de senha — Imobiliária Geraldo Gama",
+          html: `<p>Olá ${user.name},</p>
+<p>Recebemos uma solicitação para redefinir sua senha do painel admin.</p>
+<p><a href="${resetLink}" style="display:inline-block;padding:12px 24px;background:#1f8a55;color:#fff;text-decoration:none;border-radius:8px;font-weight:700">Redefinir senha</a></p>
+<p>Ou copie o link: ${resetLink}</p>
+<p>Este link expira em 1 hora.</p>
+<p>Se não foi você, ignore este email.</p>`,
+        });
+        console.log("Reset email sent to", user.email);
+      } catch (err) {
+        console.error("Failed to send email:", err.message);
+      }
+    } else {
+      console.log("SendGrid not configured. Reset link:", resetLink);
+    }
+
+    res.json({ message: "Link de redefinição enviado para o email." });
   } catch (err) {
     res.status(500).json({ error: "Erro interno do servidor." });
   }
