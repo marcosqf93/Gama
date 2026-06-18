@@ -34,6 +34,12 @@ function normalizeProperty(item, extra = {}) {
   };
 }
 
+function refKey(value) {
+  const raw = String(value ?? "").trim();
+  const numeric = raw.replace(/^0+(\d)$/, "$1");
+  return { raw, numeric };
+}
+
 const fallbackImoveis = IMOVEIS.map((item) => {
   const extra = (typeof IMOVEIS_ENRICHMENT !== "undefined" && IMOVEIS_ENRICHMENT[item.referencia]) || {};
   return normalizeProperty({
@@ -122,14 +128,14 @@ function render() {
       <article class="card reveal show">
         <div class="thumb-wrap"><img src="${i.imagem}" alt="Imovel ${i.referencia}" loading="lazy"/></div>
         <div class="card-body">
-          <div class="meta"><span class="tag">Ref ${i.referencia}</span><span class="tag">${i.tipo}</span><span class="tag">${i.finalidade}</span></div>
+          <div class="meta"><span class="tag">Ref ${i.referencia || i._id}</span><span class="tag">${i.tipo}</span><span class="tag">${i.finalidade}</span></div>
           <h3>${i.endereco}</h3>
           <p>${i.cidade}</p>
           <p>Dormitórios: ${i.dormitorios} | Vagas: ${i.vagas} | Área: ${i.area}</p>
           <p class="price-line">${i.venda !== "R$ 0,00" && i.venda !== "Consultar" ? `Venda: ${i.venda}` : ""}${i.venda !== "R$ 0,00" && i.venda !== "Consultar" && i.locacao !== "R$ 0,00" && i.locacao !== "Consultar" ? " | " : ""}${i.locacao !== "R$ 0,00" && i.locacao !== "Consultar" ? `Locação: ${i.locacao}` : ""}</p>
           <div class="card-actions">
-            <a class="btn btn-primary" href="/detalhe.html?id=${i.referencia}">Ver detalhes</a>
-            <a class="btn btn-outline" href="https://wa.me/5567998126525?text=Ol%C3%A1!%20Tenho%20interesse%20no%20im%C3%B3vel%20ref%20${i.referencia}%20-%20${encodeURIComponent(i.endereco)}" target="_blank" rel="noopener">Tenho interesse</a>
+            <a class="btn btn-primary" href="/detalhe.html?id=${encodeURIComponent(refKey(i.referencia || i._id).raw)}">Ver detalhes</a>
+            <a class="btn btn-outline" href="https://wa.me/5567998126525?text=Ol%C3%A1!%20Tenho%20interesse%20no%20im%C3%B3vel%20ref%20${encodeURIComponent(refKey(i.referencia || i._id).raw)}%20-%20${encodeURIComponent(i.endereco)}" target="_blank" rel="noopener">Tenho interesse</a>
           </div>
         </div>
       </article>`
@@ -188,14 +194,14 @@ function renderDestaques() {
         <div class="thumb-wrap"><img src="${i.imagem}" alt="Imovel ${i.referencia}" loading="lazy"/></div>
         <div class="card-badge">Destaque</div>
         <div class="card-body">
-          <div class="meta"><span class="tag">Ref ${i.referencia}</span><span class="tag">${i.tipo}</span><span class="tag">${i.finalidade}</span></div>
+          <div class="meta"><span class="tag">Ref ${i.referencia || i._id}</span><span class="tag">${i.tipo}</span><span class="tag">${i.finalidade}</span></div>
           <h3>${i.endereco}</h3>
           <p>${i.cidade}</p>
           <p>Dormitórios: ${i.dormitorios} | Vagas: ${i.vagas} | Área: ${i.area}</p>
           <p class="price-line">${i.venda !== "R$ 0,00" && i.venda !== "Consultar" ? `Venda: ${i.venda}` : ""}${i.venda !== "R$ 0,00" && i.venda !== "Consultar" && i.locacao !== "R$ 0,00" && i.locacao !== "Consultar" ? " | " : ""}${i.locacao !== "R$ 0,00" && i.locacao !== "Consultar" ? `Locação: ${i.locacao}` : ""}</p>
           <div class="card-actions">
-            <a class="btn btn-primary" href="/detalhe.html?id=${i.referencia}">Ver detalhes</a>
-            <a class="btn btn-outline" href="https://wa.me/5567998126525?text=Ol%C3%A1!%20Tenho%20interesse%20no%20im%C3%B3vel%20ref%20${i.referencia}%20-%20${encodeURIComponent(i.endereco)}" target="_blank" rel="noopener">Tenho interesse</a>
+            <a class="btn btn-primary" href="/detalhe.html?id=${encodeURIComponent(refKey(i.referencia || i._id).raw)}">Ver detalhes</a>
+            <a class="btn btn-outline" href="https://wa.me/5567998126525?text=Ol%C3%A1!%20Tenho%20interesse%20no%20im%C3%B3vel%20ref%20${encodeURIComponent(refKey(i.referencia || i._id).raw)}%20-%20${encodeURIComponent(i.endereco)}" target="_blank" rel="noopener">Tenho interesse</a>
           </div>
         </div>
       </article>`

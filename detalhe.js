@@ -29,9 +29,17 @@ async function initDetail() {
     };
   }
 
+  function refKey(value) {
+    const raw = String(value ?? "").trim();
+    const numeric = raw.replace(/^0+(\d)$/, "$1");
+    return { raw, numeric };
+  }
+
   async function loadProperties() {
     try {
-      const response = await fetch(API_URL, { cache: "no-store" });
+      const params = new URLSearchParams(window.location.search);
+      const refParam = params.get("ref") || params.get("id") || "";
+      const response = await fetch(`${API_URL}&ref=${encodeURIComponent(refParam)}`, { cache: "no-store" });
       if (!response.ok) throw new Error("API indisponível");
       const payload = await response.json();
       const live = Array.isArray(payload.properties)
@@ -51,9 +59,13 @@ async function initDetail() {
   }
 
   const params = new URLSearchParams(window.location.search);
-  const refParam = params.get("ref") || params.get("id");
+  const refParam = params.get("ref") || params.get("id") || "";
   const propriedades = await loadProperties();
-  const imovelRaw = propriedades.find((item) => item.referencia === refParam || item._id === refParam);
+  const target = refKey(refParam);
+  const imovelRaw = propriedades.find((item) => {
+    const ref = refKey(item.referencia);
+    return ref.raw === target.raw || ref.numeric === target.numeric || item._id === refParam || (!refParam && item.referencia);
+  });
   const imovel = imovelRaw ? imovelRaw : null;
   const box = document.getElementById("detalhe");
 

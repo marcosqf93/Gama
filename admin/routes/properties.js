@@ -33,8 +33,14 @@ router.post("/upload", auth, upload.array("imagens", 10), async (req, res) => {
 
 router.get("/", async (req, res) => {
   try {
-    const { page = 1, limit = 50, tipo, finalidade, cidade } = req.query;
+    const { page = 1, limit = 50, tipo, finalidade, cidade, ref } = req.query;
     const filter = {};
+    if (ref) {
+      const normalizedRef = String(ref).trim();
+      const strippedRef = normalizedRef.replace(/^0+(\d+)$/, "$1");
+      filter.$or = [{ referencia: normalizedRef }];
+      if (strippedRef !== normalizedRef) filter.$or.push({ referencia: strippedRef });
+    }
     if (tipo) filter.tipo = tipo;
     if (finalidade) filter.finalidade = finalidade;
     if (cidade) filter.cidade = { $regex: cidade, $options: "i" };
