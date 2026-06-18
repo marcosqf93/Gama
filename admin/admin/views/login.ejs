@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin — Imobiliária Geraldo Gama</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/admin.css" />
+</head>
+<body class="auth-page">
+  <div class="auth-container">
+    <div class="auth-card">
+      <div class="auth-avatar">
+        <img src="https://res.cloudinary.com/dqq4qonkb/image/upload/v1779394470/images_ikvtoi.jpg" alt="Geraldo Gama" class="auth-avatar-img" />
+      </div>
+      <h1 class="auth-name">Geraldo Gama</h1>
+      <p class="auth-role">Administrador</p>
+      <form id="login-form" autocomplete="off">
+        <div class="field">
+          <label for="email">
+            <svg viewBox="0 0 24 24" width="16" height="16"><rect x="2" y="4" width="20" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M22 4l-10 8L2 4" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>
+            Email
+          </label>
+          <input id="email" type="email" placeholder="seu@email.com" value="quintana.mqf@gmail.com" required />
+        </div>
+        <div class="field">
+          <label for="password">
+            <svg viewBox="0 0 24 24" width="16" height="16"><rect x="3" y="11" width="18" height="11" rx="2" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M7 11V7a5 5 0 0 1 10 0v4" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>
+            Senha
+          </label>
+          <input id="password" type="password" placeholder="••••••••" required />
+        </div>
+        <div class="auth-error" id="auth-error"></div>
+        <button type="submit" class="btn-submit">Entrar</button>
+        <a href="/admin/forgot-password" class="auth-link">Esqueci minha senha</a>
+      </form>
+    </div>
+  </div>
+  <script>
+  (function(){
+    const form = document.getElementById("login-form");
+    const errorEl = document.getElementById("auth-error");
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      errorEl.textContent = "";
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value;
+      try {
+        const res = await fetch("/api/auth/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, password }),
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          errorEl.textContent = data.error || "Erro ao fazer login.";
+          return;
+        }
+        localStorage.setItem("token", data.token);
+        localStorage.setItem("user", JSON.stringify(data.user));
+        window.location.href = "/admin/dashboard";
+      } catch {
+        errorEl.textContent = "Erro de conexão com o servidor.";
+      }
+    });
+  })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard — Imobiliária Geraldo Gama</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/admin.css" />
+</head>
+<body>
+  <header class="dash-header">
+    <div class="dash-header-inner">
+      <div class="dash-brand">
+        <a href="/admin/dashboard" style="text-decoration:none;color:inherit;display:flex;align-items:center;gap:.5rem">
+          <img src="https://res.cloudinary.com/dqq4qonkb/image/upload/v1779394470/images_ikvtoi.jpg" alt="Geraldo Gama" class="dash-logo" />
+          Painel Admin
+        </a>
+      </div>
+      <div class="dash-user">
+        <span id="dash-user-name">Carregando...</span>
+        <button id="btn-logout" class="btn-logout" title="Sair">
+          <svg viewBox="0 0 24 24" width="18" height="18"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" fill="none" stroke="currentColor" stroke-width="1.5"/><polyline points="16,17 21,12 16,7" fill="none" stroke="currentColor" stroke-width="1.5"/><line x1="21" y1="12" x2="9" y2="12" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="dash-main">
+    <div class="dash-toolbar">
+      <h2>Imóveis</h2>
+      <button id="btn-novo" class="btn-primary">+ Novo imóvel</button>
+    </div>
+
+    <div class="dash-filters">
+      <input id="filter-search" type="text" placeholder="Buscar por referência, bairro..." />
+      <select id="filter-tipo"><option value="">Todos os tipos</option></select>
+      <select id="filter-finalidade"><option value="">Todas finalidades</option><option value="venda">Venda</option><option value="aluguel">Aluguel</option><option value="ambos">Ambos</option></select>
+      <select id="filter-cidade"><option value="">Todas cidades</option></select>
+    </div>
+
+    <div class="dash-table-wrap">
+      <table class="dash-table" id="dash-table">
+        <thead>
+          <tr>
+            <th>Ref</th>
+            <th>Tipo</th>
+            <th>Finalidade</th>
+            <th>Cidade</th>
+            <th>Valor</th>
+            <th>Imagens</th>
+            <th style="width:120px">Ações</th>
+          </tr>
+        </thead>
+        <tbody id="dash-tbody"></tbody>
+      </table>
+    </div>
+    <p class="dash-empty" id="dash-empty">Nenhum imóvel encontrado.</p>
+  </main>
+
+  <div class="modal-overlay" id="modal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 id="modal-title">Novo imóvel</h3>
+        <button class="modal-close" id="modal-close">&times;</button>
+      </div>
+      <div class="modal-body" id="modal-body">
+        <form id="property-form" autocomplete="off">
+          <div class="form-row">
+            <div class="field"><label>Referência</label><input name="referencia" placeholder="Ex: AP-001" /></div>
+            <div class="field"><label>Tipo</label><input name="tipo" placeholder="Ex: Apartamento" required /></div>
+          </div>
+          <div class="form-row">
+            <div class="field"><label>Finalidade</label><select name="finalidade" required><option value="venda">Venda</option><option value="aluguel">Aluguel</option><option value="ambos">Ambos</option></select></div>
+            <div class="field"><label>Cidade</label><input name="cidade" placeholder="Ex: Aquidauana" required /></div>
+          </div>
+          <div class="form-row">
+            <div class="field"><label>Bairro</label><input name="bairro" placeholder="Ex: Centro" /></div>
+            <div class="field"><label>Endereço</label><input name="endereco" placeholder="Rua, número" /></div>
+          </div>
+          <fieldset class="form-fieldset">
+            <legend>Detalhes do imóvel</legend>
+            <div class="form-row">
+              <div class="field"><label>Dormitórios</label><input name="dormitorios" type="number" min="0" /></div>
+              <div class="field"><label>Suítes</label><input name="suites" type="number" min="0" /></div>
+              <div class="field"><label>Salas</label><input name="salas" type="number" min="0" /></div>
+              <div class="field"><label>Cozinhas</label><input name="cozinhas" type="number" min="0" /></div>
+            </div>
+            <div class="form-row">
+              <div class="field"><label>Banheiros</label><input name="banheiros" type="number" min="0" /></div>
+              <div class="field"><label>Varandas</label><input name="varandas" type="number" min="0" /></div>
+              <div class="field"><label>Garagens</label><input name="garagens" type="number" min="0" /></div>
+              <div class="field"><label>Área Gourmet</label><input name="areaGourmet" type="number" min="0" /></div>
+            </div>
+            <div class="form-row">
+              <div class="field"><label>Área de Serviço</label><input name="areaServico" type="number" min="0" /></div>
+              <div class="field"><label>Copa</label><input name="copa" type="number" min="0" /></div>
+              <div class="field"><label>Metragem (m²)</label><input name="metragem" type="number" min="0" /></div>
+              <div class="field"></div>
+            </div>
+          </fieldset>
+          <fieldset class="form-fieldset">
+            <legend>Valores</legend>
+            <div class="form-row">
+              <div class="field"><label>Valor Venda (R$)</label><input name="valorVenda" type="number" min="0" /></div>
+              <div class="field"><label>Valor Locação (R$)</label><input name="valorLocacao" type="number" min="0" /></div>
+            </div>
+          </fieldset>
+          <div class="field"><label>Descrição</label><textarea name="descricao" rows="3" placeholder="Descrição do imóvel..."></textarea></div>
+          <div class="field"><label>Imagens</label>
+            <input id="image-upload" type="file" accept="image/*" multiple />
+            <div class="image-preview" id="image-preview"></div>
+            <input type="hidden" name="imagens" id="imagens-input" value="[]" />
+          </div>
+          <div class="form-error" id="form-error"></div>
+          <div class="form-actions">
+            <button type="button" class="btn-secondary" id="modal-cancel">Cancelar</button>
+            <button type="submit" class="btn-primary" id="form-submit">Salvar</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script src="/js/dashboard.js"></script>
+</body>
+</html>
