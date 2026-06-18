@@ -7,15 +7,16 @@ function renderLayout() {
       <header class="topbar">
         <div class="container topbar-wrap">
           <a href="index.html" class="brand-link">
-            <img class="brand" src="https://geraldogamaimv.com.br/_img/logo.png" alt="Imobiliária Geraldo Gama" />
+            <img class="brand" src="https://res.cloudinary.com/dqq4qonkb/image/upload/v1779394470/images_ikvtoi.jpg" alt="Imobiliária Geraldo Gama" />
           </a>
 
           <button class="menu-toggle" id="menu-toggle" aria-label="Abrir menu" aria-expanded="false">☰</button>
 
           <nav class="main-nav" id="main-nav">
-            <a href="index.html#home">Home</a>
+            <a href="index.html#home">Início</a>
+            <a href="index.html#sobre">Quem Somos</a>
+            <a class="nav-highlight" href="index.html#cta-anunciar">Anunciar</a>
             <a href="index.html#imoveis">Imóveis</a>
-            <a href="index.html#sobre">Institucional</a>
             <a href="index.html#contato">Contato</a>
           </nav>
 
@@ -35,11 +36,12 @@ function renderLayout() {
       <footer class="footer">
         <div class="container footer-grid">
           <section>
-            <img class="brand" src="https://geraldogamaimv.com.br/_img/logo.png" alt="Imobiliária Geraldo Gama" />
+            <img class="brand footer-brand" src="https://res.cloudinary.com/dqq4qonkb/image/upload/v1779394470/images_ikvtoi.jpg" alt="Imobiliária Geraldo Gama" />
             <p>Rua Roberto Scaff, 960 - Bairro Alto, Aquidauana-MS</p>
             <p>Telefone: (67) 9.9812-6525 | WhatsApp: (67) 99812-6525</p>
             <p>E-mail: geraldogamaimv@gmail.com</p>
             <p><strong>Horário:</strong> seg a sex 07:00-11:00 / 13:00-17:00 | sáb 07:00-11:00 | dom fechado</p>
+            <p><strong>CRECI:</strong> 4511-MS | <strong>10 anos</strong> de mercado</p>
           </section>
 
           <section>
@@ -62,6 +64,19 @@ function renderLayout() {
               title="Mapa da Imobiliária"
             ></iframe>
           </section>
+
+          <section>
+            <h3>Atuamos em</h3>
+            <ul class="city-list">
+              <li>Aquidauana</li>
+              <li>Anastácio</li>
+              <li>Miranda</li>
+              <li>Dois Irmãos do Buriti</li>
+            </ul>
+          </section>
+        </div>
+        <div class="footer-signature">
+          Site BETA desenvolvido por <strong>MARCOS</strong>
         </div>
       </footer>
     `;
@@ -181,10 +196,16 @@ renderLayout();
   const track = document.getElementById("reviews-track");
   if (!track) return;
   try {
-    const res = await fetch("http://localhost:3001/api/reviews");
+    const res = await fetch("/api/reviews");
     if (!res.ok) return;
     const data = await res.json();
     if (!data.reviews || !data.reviews.length) return;
+    if (data.rating && data.source === "google") {
+      const ratingBadge = document.querySelector(".reviews-rating-badge") || document.createElement("div");
+      ratingBadge.className = "reviews-rating-badge";
+      ratingBadge.textContent = `★ ${data.rating.toFixed(1)} · ${data.total} avaliações`;
+      document.querySelector(".reviews-header div")?.appendChild(ratingBadge);
+    }
     track.innerHTML = data.reviews
       .map(
         (r) =>
