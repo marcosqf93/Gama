@@ -146,6 +146,7 @@
         const el = form.elements[k];
         if (el) {
           if (el.type === "number") el.value = data[k] || 0;
+          else if (el.type === "checkbox") el.checked = Boolean(data[k]);
           else el.value = data[k] || "";
         }
       });
@@ -224,6 +225,7 @@
       if (k === "imagens") continue;
       const el = form.elements[k];
       if (el && el.type === "number") data[k] = Number(v) || 0;
+      else if (el && el.type === "checkbox") data[k] = el.checked;
       else data[k] = v;
     }
     try {

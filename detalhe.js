@@ -1,5 +1,15 @@
 async function initDetail() {
   const API_URL = "https://geraldo-gama-admin.onrender.com/api/properties?limit=500";
+  const box = document.getElementById("detalhe");
+
+  if (box) {
+    box.innerHTML = `
+      <section class="detail-wrap">
+        <h1>Carregando imóvel...</h1>
+        <p>Buscando os dados do anúncio.</p>
+      </section>
+    `;
+  }
 
   function formatMoney(value) {
     const num = Number(value) || 0;
@@ -67,17 +77,20 @@ async function initDetail() {
     return ref.raw === target.raw || ref.numeric === target.numeric || item._id === refParam || (!refParam && item.referencia);
   });
   const imovel = imovelRaw ? imovelRaw : null;
-  const box = document.getElementById("detalhe");
+  if (!box) return;
 
-if (!imovel) {
-  box.innerHTML = `
-    <section class="detail-wrap">
-      <h1>Imóvel não encontrado</h1>
-      <p>O anúncio solicitado não existe ou foi removido.</p>
-      <a class="btn btn-primary" href="/#imoveis">Voltar para listagem</a>
-    </section>
-  `;
-} else {
+  if (!imovel) {
+    box.innerHTML = `
+      <section class="detail-wrap">
+        <h1>Imóvel não encontrado</h1>
+        <p>O anúncio solicitado não existe ou foi removido.</p>
+        <a class="btn btn-primary" href="/#imoveis">Voltar para listagem</a>
+      </section>
+    `;
+    return;
+  }
+
+  try {
   const fotos = Array.isArray(imovel.fotos) && imovel.fotos.length ? imovel.fotos : [imovel.imagem];
 
   const seoTitle = `${imovel.endereco} - ${imovel.tipo} em ${imovel.cidade} | Imobiliária Geraldo Gama`;
@@ -296,6 +309,16 @@ if (!imovel) {
   const waFloat = document.getElementById("whatsapp-detalhe");
   if (waFloat) {
     waFloat.href = `https://wa.me/5567998126525?text=Ol%C3%A1!%20Tenho%20interesse%20no%20im%C3%B3vel%20ref%20${imovel.referencia}%20-%20${encodeURIComponent(imovel.endereco)}.%20Quero%20agendar%20uma%20visita.`;
+  }
+  } catch (err) {
+    box.innerHTML = `
+      <section class="detail-wrap">
+        <h1>Erro ao carregar o imóvel</h1>
+        <p>${String(err.message || err)}</p>
+        <a class="btn btn-primary" href="/#imoveis">Voltar para listagem</a>
+      </section>
+    `;
+    console.error(err);
   }
 }
 
