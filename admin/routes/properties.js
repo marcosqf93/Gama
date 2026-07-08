@@ -22,6 +22,18 @@ const storage = new CloudinaryStorage({
 });
 const upload = multer({ storage });
 
+function roundInt(value) {
+  const n = Number(value);
+  return Number.isFinite(n) ? Math.round(n) : 0;
+}
+
+function normalizePropertyPayload(payload = {}) {
+  return {
+    ...payload,
+    metragem: roundInt(payload.metragem),
+  };
+}
+
 router.post("/upload", auth, upload.array("imagens", 10), async (req, res) => {
   try {
     const urls = req.files.map((f) => f.path);
@@ -67,7 +79,7 @@ router.get("/:id", async (req, res) => {
 
 router.post("/", auth, async (req, res) => {
   try {
-    const property = await Property.create(req.body);
+    const property = await Property.create(normalizePropertyPayload(req.body));
     res.status(201).json({ property });
   } catch (err) {
     res.status(400).json({ error: "Erro ao criar imóvel.", details: err.message });
@@ -76,7 +88,7 @@ router.post("/", auth, async (req, res) => {
 
 router.put("/:id", auth, async (req, res) => {
   try {
-    const property = await Property.findByIdAndUpdate(req.params.id, req.body, {
+    const property = await Property.findByIdAndUpdate(req.params.id, normalizePropertyPayload(req.body), {
       new: true,
       runValidators: true,
     });

@@ -36,7 +36,7 @@ function normalizeProperty(item, extra = {}) {
     areaServico: Number(item.areaServico || 0),
     copa: Number(item.copa || 0),
     area: extra.area || item.area || (item.metragem ? `${item.metragem} m²` : ""),
-    metragem: Number(item.metragem || 0),
+    metragem: Math.round(Number(item.metragem || 0)),
     venda: item.venda || formatMoney(item.valorVenda),
     locacao: item.locacao || formatMoney(item.valorLocacao),
     destaque: Boolean(item.destaque ?? extra.destaque),

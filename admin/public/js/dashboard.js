@@ -123,6 +123,11 @@
   }
   function fmt(n) { return Number(n).toLocaleString("pt-BR"); }
 
+  function roundInt(value) {
+    const n = Number(value);
+    return Number.isFinite(n) ? Math.round(n) : 0;
+  }
+
   /* ---- modal ---- */
   const modal = document.getElementById("modal");
   const modalTitle = document.getElementById("modal-title");
@@ -224,7 +229,7 @@
     for (const [k, v] of fd.entries()) {
       if (k === "imagens") continue;
       const el = form.elements[k];
-      if (el && el.type === "number") data[k] = Number(v) || 0;
+      if (el && el.type === "number") data[k] = k === "metragem" ? roundInt(v) : (Number(v) || 0);
       else if (el && el.type === "checkbox") data[k] = el.checked;
       else data[k] = v;
     }
@@ -236,6 +241,8 @@
     } catch {
       data.imagens = [];
     }
+
+    data.metragem = roundInt(data.metragem);
 
     if (!data.tipo || !data.finalidade || !data.cidade) {
       formError.textContent = "Preencha Tipo, Finalidade e Cidade.";
