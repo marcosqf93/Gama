@@ -228,6 +228,9 @@
       else if (el && el.type === "checkbox") data[k] = el.checked;
       else data[k] = v;
     }
+    form.querySelectorAll('input[type="checkbox"][name]').forEach((el) => {
+      data[el.name] = el.checked;
+    });
     try {
       data.imagens = JSON.parse(imagensInput.value || "[]");
     } catch {

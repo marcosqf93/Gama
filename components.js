@@ -9,12 +9,13 @@ function renderLayout() {
           <a href="index.html" class="brand-link">
             <img class="brand" src="https://res.cloudinary.com/dqq4qonkb/image/upload/v1779394470/images_ikvtoi.jpg" alt="Imobiliária Geraldo Gama" />
           </a>
+          <span class="brand-wordmark desktop-only">Imobiliária Geraldo Gama</span>
 
           <button class="menu-toggle" id="menu-toggle" aria-label="Abrir menu" aria-expanded="false">☰</button>
 
           <nav class="main-nav" id="main-nav">
             <a href="index.html#home">Início</a>
-            <a href="index.html#sobre">Quem Somos</a>
+            <a href="about.html">Quem Somos</a>
             <a class="nav-highlight" href="index.html#cta-anunciar">Anunciar</a>
             <a href="index.html#imoveis">Imóveis</a>
             <a href="index.html#contato">Contato</a>
@@ -36,10 +37,13 @@ function renderLayout() {
       <footer class="footer">
         <div class="container footer-grid">
           <section>
-            <img class="brand footer-brand" src="https://res.cloudinary.com/dqq4qonkb/image/upload/v1779394470/images_ikvtoi.jpg" alt="Imobiliária Geraldo Gama" />
+            <div class="footer-brand-row">
+              <img class="brand footer-brand" src="https://res.cloudinary.com/dqq4qonkb/image/upload/v1779394470/images_ikvtoi.jpg" alt="Imobiliária Geraldo Gama" />
+              <span class="brand-wordmark desktop-only">Imobiliária Geraldo Gama</span>
+            </div>
             <p>Rua Roberto Scaff, 960 - Bairro Alto, Aquidauana-MS</p>
-            <p>Telefone: (67) 9.9812-6525 | WhatsApp: (67) 99812-6525</p>
-            <p>E-mail: geraldogamaimv@gmail.com</p>
+            <p><strong>Contato:</strong> (67) 99812-6525</p>
+            <p><strong>E-mail:</strong> geraldogamaimv@gmail.com</p>
             <p><strong>Horário:</strong> seg a sex 07:00-11:00 / 13:00-17:00 | sáb 07:00-11:00 | dom fechado</p>
             <p><strong>CRECI:</strong> 4511-MS | <strong>10 anos</strong> de mercado</p>
           </section>
@@ -93,6 +97,38 @@ function renderLayout() {
 }
 
 renderLayout();
+
+const PROPERTY_API_URL = "https://geraldo-gama-admin.onrender.com/api/properties?limit=500";
+
+function updateLivePropertyCounts(total) {
+  const n = Number(total) || 0;
+  document.querySelectorAll("[data-live-property-count]").forEach((el) => {
+    if (!el) return;
+    const compact = el.getAttribute("data-live-property-count-format") === "compact";
+    el.textContent = compact ? (n === 1 ? "+1" : `+${n}`) : (n === 1 ? "1 imóvel" : `+${n} imóveis`);
+  });
+}
+
+(async function syncLiveCounts() {
+  if (!document.querySelector("[data-live-property-count]")) return;
+  try {
+    const res = await fetch(PROPERTY_API_URL, { cache: "no-store" });
+    if (!res.ok) throw new Error("API indisponível");
+    const payload = await res.json();
+    const total = Array.isArray(payload.properties) ? payload.properties.filter((item) => item && item.ativo !== false).length : 0;
+    updateLivePropertyCounts(total);
+  } catch {
+    if (window.IMOVEIS && Array.isArray(window.IMOVEIS)) {
+      updateLivePropertyCounts(window.IMOVEIS.length);
+    }
+  }
+})();
+
+window.addEventListener("imoveis-ready", (event) => {
+  if (typeof event?.detail?.total === "number") {
+    updateLivePropertyCounts(event.detail.total);
+  }
+});
 
 // scroll to top
 (function () {
@@ -191,32 +227,87 @@ renderLayout();
   initSlider();
 })();
 
-// live reviews from proxy
-(async function () {
+// live reviews from proxy, loaded on demand
+(function () {
+  const section = document.getElementById("avaliacoes");
   const track = document.getElementById("reviews-track");
-  if (!track) return;
-  try {
-    const res = await fetch("/api/reviews");
-    if (!res.ok) return;
-    const data = await res.json();
-    if (!data.reviews || !data.reviews.length) return;
-    if (data.rating && data.source === "google") {
-      const ratingBadge = document.querySelector(".reviews-rating-badge") || document.createElement("div");
-      ratingBadge.className = "reviews-rating-badge";
-      ratingBadge.textContent = `★ ${data.rating.toFixed(1)} · ${data.total} avaliações`;
-      document.querySelector(".reviews-header div")?.appendChild(ratingBadge);
+  if (!section || !track) return;
+
+  let loaded = false;
+
+  async function loadLiveReviews() {
+    if (loaded) return;
+    loaded = true;
+    try {
+      const res = await fetch("/api/reviews");
+      if (!res.ok) return;
+      const data = await res.json();
+      if (!data.reviews || !data.reviews.length) return;
+      if (data.rating && data.source === "google") {
+        const ratingBadge = document.querySelector(".reviews-rating-badge") || document.createElement("div");
+        ratingBadge.className = "reviews-rating-badge";
+        ratingBadge.textContent = `${data.rating.toFixed(1)}/5 no Google · ${data.total} avaliações`;
+        document.querySelector(".reviews-header div")?.appendChild(ratingBadge);
+      }
+      track.innerHTML = data.reviews
+        .map(
+          (r) =>
+            `<article class="review-card"><div class="review-stars">${"★".repeat(Math.min(5, r.rating))}${"☆".repeat(5 - Math.min(5, r.rating))}</div><blockquote>${r.text}</blockquote><span class="review-author">— ${r.author}</span></article>`
+        )
+        .join("");
+      document.querySelectorAll(".review-source").forEach(el => el.remove());
+      const evt = new CustomEvent("reviews-replaced");
+      window.dispatchEvent(evt);
+    } catch {
+      // proxy not available — static reviews remain
     }
-    track.innerHTML = data.reviews
-      .map(
-        (r) =>
-          `<article class="review-card"><div class="review-stars">${"★".repeat(Math.min(5, r.rating))}${"☆".repeat(5 - Math.min(5, r.rating))}</div><blockquote>${r.text}</blockquote><span class="review-author">— ${r.author}</span></article>`
-      )
-      .join("");
-    document.querySelectorAll(".review-source").forEach(el => el.remove());
-    // re-init slider with new cards
-    const evt = new CustomEvent("reviews-replaced");
-    window.dispatchEvent(evt);
-  } catch {
-    // proxy not available — static reviews remain
   }
+
+  const io = new IntersectionObserver((entries) => {
+    if (entries.some((entry) => entry.isIntersecting)) {
+      loadLiveReviews();
+      io.disconnect();
+    }
+  }, { threshold: 0.15 });
+
+  io.observe(section);
+})();
+
+// counter animation
+(function () {
+  const counters = document.querySelectorAll(".counter-anim");
+  if (!counters.length) return;
+
+  function animateCounter(el, target) {
+    const prefix = el.dataset.prefix || "";
+    const suffix = el.dataset.suffix || "";
+    const duration = 900;
+    const start = performance.now();
+    function frame(now) {
+      const progress = Math.min((now - start) / duration, 1);
+      const value = Math.round(target * progress);
+      el.textContent = `${prefix}${value}${suffix}`;
+      if (progress < 1) requestAnimationFrame(frame);
+    }
+    requestAnimationFrame(frame);
+  }
+
+  function run() {
+    const total = Number(document.querySelectorAll("#cards .card").length || 0);
+    counters.forEach((el) => {
+      const base = Number(el.dataset.count || 0);
+      const target = base === 80 ? Math.max(base, total) : base;
+      animateCounter(el, target);
+    });
+  }
+
+  const obs = new IntersectionObserver((entries) => {
+    if (entries.some((e) => e.isIntersecting)) {
+      run();
+      obs.disconnect();
+    }
+  }, { threshold: 0.2 });
+
+  const badgeGrid = document.querySelector(".badge-grid");
+  if (badgeGrid) obs.observe(badgeGrid);
 })();

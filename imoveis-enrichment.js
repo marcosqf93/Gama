@@ -1,12 +1,5 @@
 const IMOVEIS_ENRICHMENT = {
   "86": { cidade: "Aquidauana", endereco: "Manoel Antônio Paes de Barros 2008 Guanandy", fotos: ["https://geraldogamaimv.com.br/fotos/17602.jpg"] },
-  "87": { cidade: "Aquidauana", endereco: "Rua Delfino Alves Corrêa nº 250 Alto", fotos: ["https://geraldogamaimv.com.br/fotos/16914.jpg"], destaque: true },
-  "292": { cidade: "Anastácio", endereco: "Rua Aziz Scaff 767", fotos: ["https://geraldogamaimv.com.br/fotos/16484.jpg"], destaque: true },
-  "362": { cidade: "Anastácio", endereco: "Travessa Ragalzi 826 Centro", fotos: ["https://geraldogamaimv.com.br/fotos/3892.jpg"], destaque: true },
-  "616": { cidade: "Anastácio", endereco: "Nilza Ferraz Ribeiro 1234, Centro", fotos: ["https://geraldogamaimv.com.br/fotos/11780.jpg"], destaque: true },
-  "617": { cidade: "Aquidauana", endereco: "Av. Dr. Sabino (Pantaneta) 585", fotos: ["https://geraldogamaimv.com.br/fotos/11793.jpg"], destaque: true },
-  "633": { cidade: "Aquidauana", endereco: "Pandiá Calógeras 1036", fotos: ["https://geraldogamaimv.com.br/fotos/12429.jpg"], destaque: true },
-  "682": { cidade: "Aquidauana", endereco: "Cândido Mariano 544, Centro", fotos: ["https://geraldogamaimv.com.br/fotos/14048.jpg"], destaque: true },
   "685": { cidade: "Aquidauana", endereco: "Estevão Alves Corrêa 1890 Bairro Alto", fotos: ["https://geraldogamaimv.com.br/fotos/14150.jpg"] },
   "686": { cidade: "Aquidauana", endereco: "Dos Ferroviários 2850 Bairro Cidade Nova", fotos: ["https://geraldogamaimv.com.br/fotos/14229.jpg"] },
   "690": { cidade: "Aquidauana", endereco: "Hélio Galan Fernandes 372 Serraria", fotos: ["https://geraldogamaimv.com.br/fotos/14382.jpg"] },
