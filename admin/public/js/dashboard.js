@@ -123,9 +123,9 @@
   }
   function fmt(n) { return Number(n).toLocaleString("pt-BR"); }
 
-  function roundInt(value) {
+  function parseNumber(value) {
     const n = Number(value);
-    return Number.isFinite(n) ? Math.round(n) : 0;
+    return Number.isFinite(n) ? n : 0;
   }
 
   /* ---- modal ---- */
@@ -229,7 +229,7 @@
     for (const [k, v] of fd.entries()) {
       if (k === "imagens") continue;
       const el = form.elements[k];
-      if (el && el.type === "number") data[k] = k === "metragem" ? roundInt(v) : (Number(v) || 0);
+      if (el && el.type === "number") data[k] = parseNumber(v);
       else if (el && el.type === "checkbox") data[k] = el.checked;
       else data[k] = v;
     }
@@ -241,9 +241,6 @@
     } catch {
       data.imagens = [];
     }
-
-    data.metragem = roundInt(data.metragem);
-
     if (!data.tipo || !data.finalidade || !data.cidade) {
       formError.textContent = "Preencha Tipo, Finalidade e Cidade.";
       return;

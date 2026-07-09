@@ -22,15 +22,10 @@ const storage = new CloudinaryStorage({
 });
 const upload = multer({ storage });
 
-function roundInt(value) {
-  const n = Number(value);
-  return Number.isFinite(n) ? Math.round(n) : 0;
-}
-
 function normalizePropertyPayload(payload = {}) {
   return {
     ...payload,
-    metragem: roundInt(payload.metragem),
+    metragem: Number(payload.metragem) || 0,
   };
 }
 
