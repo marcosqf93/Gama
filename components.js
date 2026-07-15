@@ -102,6 +102,7 @@ const PROPERTY_API_URL = "https://geraldo-gama-admin.onrender.com/api/properties
 
 function updateLivePropertyCounts(total) {
   const n = Number(total) || 0;
+  if (n <= 0) return;
   document.querySelectorAll("[data-live-property-count]").forEach((el) => {
     if (!el) return;
     const compact = el.getAttribute("data-live-property-count-format") === "compact";
@@ -119,7 +120,7 @@ function updateLivePropertyCounts(total) {
     updateLivePropertyCounts(total);
   } catch {
     if (window.IMOVEIS && Array.isArray(window.IMOVEIS)) {
-      updateLivePropertyCounts(window.IMOVEIS.length);
+      if (window.IMOVEIS.length > 0) updateLivePropertyCounts(window.IMOVEIS.length);
     }
   }
 })();
