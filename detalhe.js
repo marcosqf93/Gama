@@ -16,6 +16,14 @@ async function initDetail() {
     return new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(num);
   }
 
+  function parseMeasure(value) {
+    if (typeof value === "number") return value;
+    if (!value) return 0;
+    const match = String(value).match(/[\d.,]+/);
+    if (!match) return 0;
+    return parseFloat(match[0].replace(/\./g, "").replace(",", ".")) || 0;
+  }
+
   function isCloudinaryUrl(url) {
     return typeof url === "string" && /res\.cloudinary\.com/.test(url) && /\/upload\//.test(url);
   }
@@ -55,6 +63,7 @@ async function initDetail() {
       tipo: item.tipo || "",
       finalidade: item.finalidade || "",
       cidade: extra.cidade || item.cidade || "",
+      bairro: extra.bairro || item.bairro || "",
       endereco: extra.endereco || item.endereco || item.bairro || "",
       fotos: photos,
       imagem: photos[0] || "",
@@ -70,7 +79,7 @@ async function initDetail() {
       areaServico: Number(item.areaServico || 0),
       copa: Number(item.copa || 0),
       area: extra.area || item.area || (item.metragem ? `${item.metragem} m²` : ""),
-      metragem: Number(item.metragem || 0),
+      metragem: parseMeasure(item.metragem),
       mapaUrl: extra.mapaUrl || item.mapaUrl || "",
       venda: item.venda || formatMoney(item.valorVenda),
       locacao: item.locacao || formatMoney(item.valorLocacao),
@@ -106,6 +115,8 @@ async function initDetail() {
       varandas: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h16"/><path d="M6 12V6h12v6"/><path d="M7 20h10"/></svg>',
       vagas: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19V9a3 3 0 0 1 3-3h10a3 3 0 0 1 3 3v10"/><path d="M8 19v-4h8v4"/></svg>',
       metragem: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h16"/><path d="M6 20V6"/><path d="M6 6h10"/><path d="M16 6v10"/></svg>',
+      bairro: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s6-5.2 6-11a6 6 0 0 0-12 0c0 5.8 6 11 6 11z"/><circle cx="12" cy="10" r="2.2"/></svg>',
+      cidade: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h16"/><path d="M6 20V8l6-3 6 3v12"/><path d="M9 20v-5h6v5"/></svg>',
       finalidade: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 19V5h14v14z"/><path d="M9 9h6M9 13h6"/></svg>',
       venda: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 17h16"/><path d="M7 17V7h10v10"/><path d="M10 14h4"/></svg>',
       locacao: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 19V9l7-4 7 4v10"/><path d="M9 19v-5h6v5"/></svg>',
@@ -125,21 +136,17 @@ async function initDetail() {
       cards.push({ type: "feature", key, label, value: n });
     };
 
-    pushText("Finalidade", acao);
-    pushText("Área", item.area && item.area !== "0" && item.area !== "0 m²" ? item.area : "");
-    if (preco && item.finalidade !== "aluguel") pushText("Venda", item.venda);
-    if (preco && item.finalidade !== "venda") pushText("Locação", item.locacao);
+    pushFeature("metragem", "Metragem", item.metragem);
     pushFeature("suites", "Suíte", item.suites);
+    pushFeature("cozinhas", "Cozinha", item.cozinhas);
+    pushFeature("vagas", "Garagem", item.garagens || item.vagas);
     pushFeature("dormitorios", "Dormitório", item.dormitorios);
     pushFeature("banheiros", "Banheiro", item.banheiros);
     pushFeature("salas", "Sala", item.salas);
-    pushFeature("cozinhas", "Cozinha", item.cozinhas);
     pushFeature("areaGourmet", "Área gourmet", item.areaGourmet);
     pushFeature("areaServico", "Área de serviço", item.areaServico);
     pushFeature("copa", "Copa", item.copa);
     pushFeature("varandas", "Varanda", item.varandas);
-    pushFeature("vagas", "Garagem", item.garagens || item.vagas);
-    pushFeature("metragem", "Metragem", item.metragem);
     return cards;
   }
 
@@ -276,21 +283,45 @@ async function initDetail() {
     <article class="detail-wrap reveal show">
       <div class="detail-badge-destaque">Em destaque</div>
       <div class="gallery-premium">
-        <div class="gallery-main" id="gallery-main">
-          <img ${responsiveImageAttrs(fotos[0], `Imagem 1 do imóvel ${imovel.referencia}`, { width: 1200, height: 800, sizes: "(max-width: 768px) 100vw, 50vw", loading: "eager", fetchpriority: "high" })} class="gallery-main-img" id="gallery-main-img" />
-          <button type="button" class="gallery-open-btn" id="gallery-open-btn" aria-label="Abrir foto em tela cheia">Ampliar</button>
-          <div class="gallery-counter"><span id="gallery-idx">1</span> / ${fotos.length} fotos</div>
-          ${fotos.length > 1 ? '<button class="slide-btn prev" id="prev-photo" aria-label="Foto anterior">\u2039</button><button class="slide-btn next" id="next-photo" aria-label="Próxima foto">\u203A</button>' : ''}
+        <div class="gallery-layout">
+          <div class="gallery-main" id="gallery-main">
+            <img ${responsiveImageAttrs(fotos[0], `Imagem 1 do imóvel ${imovel.referencia}`, { width: 1200, height: 800, sizes: "(max-width: 768px) 100vw, 68vw", loading: "eager", fetchpriority: "high" })} class="gallery-main-img" id="gallery-main-img" />
+            <button type="button" class="gallery-open-btn" id="gallery-open-btn" aria-label="Abrir foto em tela cheia">Ampliar</button>
+            <div class="gallery-counter"><span id="gallery-idx">1</span> / ${fotos.length} fotos</div>
+            ${fotos.length > 1 ? '<button class="slide-btn prev" id="prev-photo" aria-label="Foto anterior">\u2039</button><button class="slide-btn next" id="next-photo" aria-label="Próxima foto">\u203A</button>' : ''}
+          </div>
+          <div class="gallery-thumbs gallery-thumbs-side" id="gallery-thumbs">
+            ${fotos.slice(0, 4).map((f, i) => `<button class="gallery-thumb ${i === 0 ? 'active' : ''}" data-index="${i}" aria-label="Foto ${i + 1}"><img ${responsiveImageAttrs(f, `Miniatura ${i + 1}`, { width: 200, height: 150, loading: "lazy" })} /></button>`).join('')}
+          </div>
         </div>
-        <div class="gallery-thumbs" id="gallery-thumbs">
-          ${fotos.map((f, i) => `<button class="gallery-thumb ${i === 0 ? 'active' : ''}" data-index="${i}" aria-label="Foto ${i + 1}"><img ${responsiveImageAttrs(f, `Miniatura ${i + 1}`, { width: 200, height: 150, loading: "lazy" })} /></button>`).join('')}
+        ${fotos.length > 1 ? `
+          <div class="gallery-dots" id="gallery-dots" aria-label="Navegação da galeria">
+            ${fotos.map((_, i) => `<button type="button" class="gallery-dot ${i === 0 ? 'active' : ''}" data-index="${i}" aria-label="Ir para a foto ${i + 1}"></button>`).join('')}
+          </div>
+        ` : ''}
+        ${fotos.length > 4 ? `
+          <div class="gallery-thumbs gallery-thumbs-bottom" id="gallery-thumbs-bottom">
+            ${fotos.slice(4).map((f, idx) => {
+              const i = idx + 4;
+              return `<button class="gallery-thumb" data-index="${i}" aria-label="Foto ${i + 1}"><img ${responsiveImageAttrs(f, `Miniatura ${i + 1}`, { width: 200, height: 150, loading: "lazy" })} /></button>`;
+            }).join('')}
+          </div>
+        ` : ''}
+      </div>
+      <div class="detail-intro">
+        <p class="detail-kicker">${acao.toUpperCase()} | ${imovel.tipo}</p>
+        <h1>${imovel.endereco}</h1>
+        <div class="detail-location-line">
+          ${imovel.bairro ? `<span class="detail-location-pill"><span class="detail-location-icon">${featureIcon("bairro")}</span>${imovel.bairro}</span>` : ''}
+          ${imovel.cidade ? `<span class="detail-location-pill"><span class="detail-location-icon">${featureIcon("cidade")}</span>${imovel.cidade}</span>` : ''}
         </div>
+        ${preco ? `<div class="detail-price-highlight">${preco}</div>` : ''}
+        <a class="detail-whatsapp-cta" href="https://wa.me/5567998126525?text=${encodeURIComponent(`Olá! Tenho interesse no imóvel ref ${imovel.referencia} - ${imovel.endereco}.`)}" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 11.5a8.5 8.5 0 0 1-8.5 8.5 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.5 8.5 0 0 1-7.6-11.5A8.5 8.5 0 0 1 12.5 3h.5a8.5 8.5 0 0 1 8 8.5v.5z"/></svg>
+          <span>Tenho Interesse</span>
+        </a>
       </div>
       <div class="detail-content">
-        <p class="eyebrow">Referência ${imovel.referencia} - ${imovel.tipo}</p>
-        <h1>${imovel.endereco}</h1>
-        <p class="detail-city">${imovel.cidade}</p>
-
         <div class="detail-grid detail-grid-premium">
           ${highlightCards.map((item) => item.type === "text" ? `<div class="detail-card detail-card-text"><span>${item.label}</span><strong>${item.value}</strong></div>` : `<div class="detail-card detail-card-feature" title="${item.label}: ${item.value}"><span class="detail-card-icon">${featureIcon(item.key)}</span><strong>${item.value}</strong></div>`).join("")}
         </div>
@@ -363,6 +394,7 @@ async function initDetail() {
   const mainImg = document.getElementById("gallery-main-img");
   const counterEl = document.getElementById("gallery-idx");
   const thumbs = document.querySelectorAll(".gallery-thumb");
+  const dots = document.querySelectorAll(".gallery-dot");
   const modal = document.getElementById("gallery-modal");
   const modalImg = document.getElementById("gallery-modal-img");
   const modalCaption = document.getElementById("gallery-modal-caption");
@@ -381,6 +413,7 @@ async function initDetail() {
     else mainImg.removeAttribute("srcset");
     counterEl.textContent = idx + 1;
     thumbs.forEach((t, i) => t.classList.toggle("active", i === idx));
+    dots.forEach((dot, i) => dot.classList.toggle("active", i === idx));
     const activeThumb = thumbs[idx];
     if (activeThumb) activeThumb.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
     if (modalOpen) {
@@ -417,6 +450,7 @@ async function initDetail() {
   if (prevBtn) prevBtn.addEventListener("click", () => step(-1));
   if (nextBtn) nextBtn.addEventListener("click", () => step(1));
   thumbs.forEach((t) => t.addEventListener("click", () => renderActive(parseInt(t.dataset.index, 10))));
+  dots.forEach((d) => d.addEventListener("click", () => renderActive(parseInt(d.dataset.index, 10))));
   if (openBtn) openBtn.addEventListener("click", () => openModal(photoIndex));
   mainImg.addEventListener("click", () => openModal(photoIndex));
   if (modalPrev) modalPrev.addEventListener("click", () => step(-1));
@@ -426,6 +460,17 @@ async function initDetail() {
   modalImg.addEventListener("click", () => { zoomed = !zoomed; modalImg.classList.toggle("zoomed", zoomed); });
 
   let touchStartX = 0;
+  const galleryMain = document.getElementById("gallery-main");
+  if (galleryMain) {
+    galleryMain.addEventListener("touchstart", (e) => { touchStartX = e.changedTouches[0].screenX; }, { passive: true });
+    galleryMain.addEventListener("touchend", (e) => {
+      const touchEndX = e.changedTouches[0].screenX;
+      const diff = touchEndX - touchStartX;
+      if (Math.abs(diff) > 50) {
+        if (diff > 0) step(-1); else step(1);
+      }
+    }, { passive: true });
+  }
   modal.addEventListener("touchstart", (e) => { touchStartX = e.changedTouches[0].screenX; }, { passive: true });
   modal.addEventListener("touchend", (e) => {
     const touchEndX = e.changedTouches[0].screenX;
@@ -443,15 +488,14 @@ async function initDetail() {
   });
 
   const shareNative = document.getElementById("share-native");
-  if (shareNative) {
-    shareNative.addEventListener("click", async () => {
-      if (navigator.share) {
-        await navigator.share({ title: `Imóvel ${imovel.referencia} - Imobiliária Geraldo Gama`, url: window.location.href });
-      } else {
-        window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.href)}`, "_blank", "noopener");
-      }
-    });
-  }
+  const shareAction = async () => {
+    if (navigator.share) {
+      await navigator.share({ title: `Imóvel ${imovel.referencia} - Imobiliária Geraldo Gama`, url: window.location.href });
+    } else {
+      window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.href)}`, "_blank", "noopener");
+    }
+  };
+  if (shareNative) shareNative.addEventListener("click", shareAction);
 
   const waFloat = document.getElementById("whatsapp-detalhe");
   if (waFloat) {

@@ -12,6 +12,14 @@ function parseCurrency(value) {
   return parseFloat(cleaned) || 0;
 }
 
+function parseMeasure(value) {
+  if (typeof value === "number") return value;
+  if (!value) return 0;
+  const match = String(value).match(/[\d.,]+/);
+  if (!match) return 0;
+  return parseFloat(match[0].replace(/\./g, "").replace(",", ".")) || 0;
+}
+
 function normalizeProperty(item, extra = {}) {
   const photos = extra.fotos || (Array.isArray(item.imagens) && item.imagens.length ? item.imagens : item.imagem ? [item.imagem] : []);
   return {
@@ -36,7 +44,7 @@ function normalizeProperty(item, extra = {}) {
     areaServico: Number(item.areaServico || 0),
     copa: Number(item.copa || 0),
     area: extra.area || item.area || (item.metragem ? `${item.metragem} m²` : ""),
-    metragem: Number(item.metragem || 0),
+    metragem: parseMeasure(item.metragem),
     mapaUrl: extra.mapaUrl || item.mapaUrl || "",
     venda: item.venda || formatMoney(item.valorVenda),
     locacao: item.locacao || formatMoney(item.valorLocacao),
