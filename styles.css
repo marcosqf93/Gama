@@ -114,7 +114,18 @@ body {
 }
 .hero-filters select:focus { outline: none; border-color: #fff; box-shadow: 0 0 0 3px rgba(255,255,255,.2); background: #fff; }
 .hero-filters .btn { padding: .6rem 1.2rem; font-size: .85rem; white-space: nowrap; }
+.hero-clear-btn { display: none; align-items: center; gap: .35rem; }
+.hero-clear-btn.show { display: inline-flex; }
+.hero-clear-btn::before { content: "↺"; font-size: 1rem; line-height: 1; }
 .mobile-filter-trigger { display: none; margin-top: 1rem; width: 100%; max-width: 240px; }
+.hero-search-status {
+  min-height: 1.2em;
+  margin: -.1rem 0 0;
+  color: rgba(255,255,255,.94);
+  font-size: .9rem;
+  font-weight: 700;
+  text-shadow: 0 1px 8px rgba(0,0,0,.18);
+}
 
 .trust-strip { margin: .85rem 0 1rem; }
 .trust-strip .container {
@@ -320,6 +331,20 @@ select {
 }
 .cards { display: grid; grid-template-columns: 1fr; gap: 1rem; content-visibility: auto; }
 .stats { margin: 1rem 0 .4rem; color: var(--muted); font-weight: 600; }
+.stats.no-results { color: #8f3b2e; font-weight: 800; }
+.no-results-box {
+  background: rgba(255,255,255,.92);
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  padding: 1.1rem;
+  box-shadow: var(--shadow);
+  text-align: center;
+  display: grid;
+  gap: .6rem;
+  justify-items: center;
+}
+.no-results-box h3 { margin: 0; color: var(--primary-deep); }
+.no-results-box p { margin: 0; color: #335a46; }
 .card {
   background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius);
   overflow: hidden; box-shadow: var(--shadow);
@@ -329,6 +354,29 @@ select {
 .thumb-wrap { height: 180px; overflow: hidden; position: relative; }
 .thumb-wrap img { width: 100%; height: 100%; object-fit: cover; transition: transform .6s cubic-bezier(.25,.46,.45,.94); }
 .card:hover .thumb-wrap img { transform: scale(1.08); }
+.card-map-pin {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 2;
+  width: 30px;
+  height: 30px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255,255,255,.88);
+  color: var(--primary-deep);
+  box-shadow: 0 6px 16px rgba(18,53,36,.18);
+  backdrop-filter: blur(6px);
+}
+.card-map-link { text-decoration: none; }
+.card-map-link:hover { transform: translateY(-1px) scale(1.03); }
+.card-map-pin svg {
+  width: 16px;
+  height: 16px;
+  fill: currentColor;
+}
 .card-body { padding: 1rem; }
 .meta { display: flex; flex-wrap: wrap; gap: .4rem; margin-bottom: .6rem; }
 .tag { font-size: .72rem; border-radius: 999px; padding: .28rem .58rem; background: var(--primary-light); color: var(--primary-deep); font-weight: 700; }
@@ -772,6 +820,59 @@ body.no-scroll { overflow: hidden; }
 .about-hero-card .institutional-img { margin: 0; width: 100%; height: 220px; object-fit: cover; }
 .about-hero-card .institutional-img { display: block; }
 .about-content-grid { display: grid; align-items: start; gap: 1rem; }
+.split > div:first-child { display: grid; gap: .8rem; justify-items: start; }
+.split > div:first-child .btn { margin-top: .2rem; }
+.about-hero-home {
+  position: relative;
+  overflow: hidden;
+  min-height: 320px;
+  padding: 1.15rem;
+  border-radius: 18px;
+  box-shadow: var(--shadow);
+  display: grid;
+  align-content: end;
+  gap: .75rem;
+  isolation: isolate;
+}
+.about-hero-home::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(8,45,29,.14) 0%, rgba(8,45,29,.48) 58%, rgba(8,45,29,.72) 100%), url("https://i.postimg.cc/GhHmgCZt/Chat-GPT-Image-15-de-jul-de-2026-08-24-47.png") center 28% / cover no-repeat;
+  z-index: -2;
+}
+.about-hero-home::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(8,45,29,.06), rgba(8,45,29,.18));
+  z-index: -1;
+}
+.about-hero-home .eyebrow,
+.about-hero-home h2,
+.about-hero-home p,
+.about-hero-home .btn { position: relative; z-index: 1; }
+.about-home-title {
+  display: flex;
+  align-items: center;
+  gap: .7rem;
+  margin: 0;
+}
+.about-home-title img {
+  width: 38px;
+  height: 38px;
+  border-radius: 999px;
+  object-fit: cover;
+  box-shadow: 0 8px 18px rgba(0,0,0,.18);
+  flex-shrink: 0;
+}
+.about-hero-home .eyebrow { color: rgba(255,255,255,.92); }
+.about-hero-home h2 { color: #fff; text-shadow: 0 2px 12px rgba(0,0,0,.25); }
+.about-hero-home p { color: rgba(255,255,255,.9); text-shadow: 0 1px 8px rgba(0,0,0,.18); }
+.badge-grid { gap: .5rem; }
+.badge-grid article { padding: .75rem .8rem; border-radius: 14px; }
+.badge-grid strong { font-size: 1.2rem; }
+.badge-grid span { font-size: .82rem; }
 .about-story {
   display: grid;
   gap: .9rem;
@@ -819,6 +920,7 @@ body.no-scroll { overflow: hidden; }
   .about-content-grid { grid-template-columns: 1.15fr .85fr; gap: 1.2rem; }
   .about-hero-wrap { grid-template-columns: 1.05fr .95fr; align-items: center; }
   .about-diff-grid { grid-template-columns: repeat(3, 1fr); }
+  .home-about-image { max-height: 260px; object-position: center 28%; }
 }
 
 @keyframes destaquePulse {
@@ -862,8 +964,26 @@ body.no-scroll { overflow: hidden; }
   .badge-grid { grid-template-columns: 1fr 1fr; }
   body { background-attachment: scroll; }
   .hero { background-attachment: scroll; }
-  .hero-media { background-position: center top; }
+  .hero-media {
+    background-position: center center !important;
+    background-size: cover !important;
+  }
+  .mobile-filter-trigger {
+    display: inline-flex;
+    width: auto;
+    max-width: none;
+    padding: .52rem .8rem;
+    font-size: .78rem;
+    background: #fff;
+    color: var(--primary-deep);
+    border: 1px solid rgba(17,99,59,.22);
+    box-shadow: 0 6px 18px rgba(18,53,36,.08);
+  }
+  .mobile-filter-trigger:hover { background: #f8fffb; }
+  .about-hero-home { min-height: 260px; padding: 1rem; }
+  .about-hero-home::before { background-position: center 22%; }
   .about-hero { padding-top: 1.2rem; }
+  .about-home-title img { width: 32px; height: 32px; }
   .about-hero .container,
   .about-hero-copy { border-radius: 16px; }
   .about-hero-wrap { gap: 0; position: relative; }
@@ -921,7 +1041,7 @@ body.no-scroll { overflow: hidden; }
 }
 
 .hero-media {
-  background: url("https://cdn.opantaneiro.com.br/upload/dn_arquivo/2021/08/whatsapp-image-2021-06-28-at-114144-1.jpeg") center/cover no-repeat !important;
+  background: url("https://i.postimg.cc/GhHmgCZt/Chat-GPT-Image-15-de-jul-de-2026-08-24-47.png") center/cover no-repeat !important;
 }
 .hero-picture { display: none !important; }
 

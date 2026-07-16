@@ -128,6 +128,10 @@
     return Number.isFinite(n) ? n : 0;
   }
 
+  function normalizeMapUrl(value) {
+    return String(value || "").trim();
+  }
+
   /* ---- modal ---- */
   const modal = document.getElementById("modal");
   const modalTitle = document.getElementById("modal-title");
@@ -152,6 +156,7 @@
         if (el) {
           if (el.type === "number") el.value = data[k] || 0;
           else if (el.type === "checkbox") el.checked = Boolean(data[k]);
+          else if (k === "mapaUrl") el.value = data[k] || "";
           else el.value = data[k] || "";
         }
       });
@@ -231,6 +236,7 @@
       const el = form.elements[k];
       if (el && el.type === "number") data[k] = parseNumber(v);
       else if (el && el.type === "checkbox") data[k] = el.checked;
+      else if (k === "mapaUrl") data[k] = normalizeMapUrl(v);
       else data[k] = v;
     }
     form.querySelectorAll('input[type="checkbox"][name]').forEach((el) => {

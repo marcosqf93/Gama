@@ -19,6 +19,7 @@ const propertySchema = new mongoose.Schema(
     areaServico: { type: Number, default: 0 },
     copa: { type: Number, default: 0 },
     metragem: { type: Number, default: 0 },
+    mapaUrl: { type: String, default: "", trim: true },
     valorVenda: { type: Number, default: 0 },
     valorLocacao: { type: Number, default: 0 },
     descricao: { type: String, default: "", trim: true },

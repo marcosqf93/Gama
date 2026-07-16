@@ -276,7 +276,7 @@ window.addEventListener("imoveis-ready", (event) => {
 
 // counter animation
 (function () {
-  const counters = document.querySelectorAll(".counter-anim");
+  const counters = document.querySelectorAll(".counter-anim[data-count]");
   if (!counters.length) return;
 
   function animateCounter(el, target) {

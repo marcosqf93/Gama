@@ -37,6 +37,7 @@ function normalizeProperty(item, extra = {}) {
     copa: Number(item.copa || 0),
     area: extra.area || item.area || (item.metragem ? `${item.metragem} m²` : ""),
     metragem: Number(item.metragem || 0),
+    mapaUrl: extra.mapaUrl || item.mapaUrl || "",
     venda: item.venda || formatMoney(item.valorVenda),
     locacao: item.locacao || formatMoney(item.valorLocacao),
     destaque: Boolean(item.destaque ?? extra.destaque),
@@ -110,6 +111,8 @@ const cards = document.getElementById("cards");
 const stats = document.getElementById("stats");
 const loadMore = document.getElementById("load-more");
 const trustCount = document.querySelector('[data-trust="count"] strong');
+const heroSearchStatus = document.getElementById("hero-search-status");
+const heroClearBtn = document.getElementById("hero-clear-btn");
 let visibleCount = window.matchMedia && window.matchMedia("(max-width: 900px)").matches ? 6 : 12;
 let filtroFinalidade = "";
 let categoriaFiltro = "";
@@ -143,6 +146,61 @@ function propertyFeatureList(item) {
   push(item.copa ? "Copa" : "");
   if (item.metragem) push(`${item.metragem} m²`);
   return features.filter(Boolean);
+}
+
+function getFilteredProperties() {
+  const term = q.value.toLowerCase().trim();
+  return imoveis.filter((i) => {
+    const hitTerm = !term || `${i.referencia} ${i.endereco} ${i.tipo}`.toLowerCase().includes(term);
+    const hitTipo = !tipo.value || i.tipo === tipo.value;
+    const hitCategoria = !categoriaFiltro || matchesCategory(i.tipo, categoriaFiltro);
+    const hitFinalidade = !filtroFinalidade || matchesFinalidade(i.finalidade, filtroFinalidade);
+    const hitCidade = !cidade.value || i.cidade === cidade.value;
+    const hitValor = filterByValor(i, valor.value);
+    const hitQuartos = !filtroQuartos || Number(i.dormitorios || 0) >= Number(filtroQuartos);
+    const textBairro = `${i.bairro || ""} ${i.endereco || ""}`.toLowerCase();
+    const hitBairro = !filtroBairro || textBairro.includes(filtroBairro.toLowerCase());
+    return hitTerm && hitTipo && hitCategoria && hitFinalidade && hitCidade && hitValor && hitQuartos && hitBairro;
+  });
+}
+
+function formatResultsMessage(count, total) {
+  if (count === 0) return "Não encontramos imóveis com esses critérios. Fale conosco para receber novas oportunidades.";
+  return `${count} ${count === 1 ? "imóvel encontrado" : "imóveis encontrados"} de ${total} cadastrados.`;
+}
+
+function updateSearchSummaries(count, total) {
+  const message = hasActiveFilters() ? formatResultsMessage(count, total) : "";
+  if (stats) {
+    stats.textContent = message;
+    stats.classList.toggle("no-results", count === 0);
+  }
+  if (heroSearchStatus) {
+    heroSearchStatus.textContent = hasActiveFilters() ? message : "";
+  }
+}
+
+function hasActiveFilters() {
+  return Boolean(
+    q.value.trim() ||
+    tipo.value ||
+    cidade.value ||
+    valor.value ||
+    filtroFinalidade ||
+    categoriaFiltro ||
+    filtroQuartos ||
+    filtroBairro
+  );
+}
+
+function updateClearButton() {
+  heroClearBtn?.classList.toggle("show", hasActiveFilters());
+}
+
+function scrollToResultsIfAny(count) {
+  if (!count) return false;
+  document.getElementById("imoveis")?.scrollIntoView({ behavior: "smooth" });
+  return true;
 }
 
 function featureIcon(type) {
@@ -190,6 +248,25 @@ function filterByValor(prop, range) {
   const val = parseCurrency(prop.venda) || parseCurrency(prop.locacao);
   if (range.endsWith("+")) return val >= min;
   return val >= min && val <= max;
+}
+
+function validPriceLabel(label, value) {
+  const text = String(value || "").trim();
+  const numeric = parseCurrency(text);
+  if (!text || numeric <= 0 || text === "Consultar") return "";
+  return `${label}: ${text}`;
+}
+
+function priceLineHTML(item) {
+  const line = [validPriceLabel("Venda", item.venda), validPriceLabel("Locação", item.locacao)].filter(Boolean).join(" | ");
+  return line ? `<p class="price-line">${line}</p>` : "";
+}
+
+function mapPinHTML(item) {
+  const icon = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s6-5.2 6-11a6 6 0 0 0-12 0c0 5.8 6 11 6 11z"/><circle cx="12" cy="10" r="2.2"/></svg>';
+  const href = String(item.mapaUrl || "").trim();
+  if (!href) return `<span class="card-map-pin" aria-hidden="true">${icon}</span>`;
+  return `<a class="card-map-pin card-map-link" href="${href}" target="_blank" rel="noopener" aria-label="Abrir mapa do imóvel">${icon}</a>`;
 }
 
 function fillSelect(id, values) {
@@ -243,45 +320,40 @@ async function carregarImoveis() {
 }
 
 function render() {
-  const term = q.value.toLowerCase().trim();
-  const filtrados = imoveis.filter((i) => {
-    const hitTerm = !term || `${i.referencia} ${i.endereco} ${i.tipo}`.toLowerCase().includes(term);
-    const hitTipo = !tipo.value || i.tipo === tipo.value;
-    const hitCategoria = !categoriaFiltro || matchesCategory(i.tipo, categoriaFiltro);
-    const hitFinalidade = !filtroFinalidade || matchesFinalidade(i.finalidade, filtroFinalidade);
-    const hitCidade = !cidade.value || i.cidade === cidade.value;
-    const hitValor = filterByValor(i, valor.value);
-    const hitQuartos = !filtroQuartos || Number(i.dormitorios || 0) >= Number(filtroQuartos);
-    const textBairro = `${i.bairro || ""} ${i.endereco || ""}`.toLowerCase();
-    const hitBairro = !filtroBairro || textBairro.includes(filtroBairro.toLowerCase());
-    return hitTerm && hitTipo && hitCategoria && hitFinalidade && hitCidade && hitValor && hitQuartos && hitBairro;
-  });
-
-  stats.textContent = `${filtrados.length} imóveis encontrados de ${imoveis.length} cadastrados.`;
+  const filtrados = getFilteredProperties();
+  updateSearchSummaries(filtrados.length, imoveis.length);
+  updateClearButton();
   const exibidos = filtrados.slice(0, visibleCount);
-  cards.innerHTML = exibidos
-    .map(
-      (i) => `
+  cards.innerHTML = filtrados.length
+    ? exibidos
+      .map(
+        (i) => `
       <article class="card reveal show">
-        <div class="thumb-wrap"><img ${responsiveImageAttrs(i.imagem, `Imovel ${i.referencia}`, { width: 800, height: 600, sizes: "(max-width: 768px) 100vw, 33vw", loading: "lazy" })} /></div>
+        <div class="thumb-wrap">
+          ${mapPinHTML(i)}
+          <img ${responsiveImageAttrs(i.imagem, `Imovel ${i.referencia}`, { width: 800, height: 600, sizes: "(max-width: 768px) 100vw, 33vw", loading: "lazy" })} />
+        </div>
         <div class="card-body">
           <div class="meta"><span class="tag">Ref ${i.referencia || i._id}</span><span class="tag">${i.tipo}</span><span class="tag">${i.finalidade}</span></div>
           <h3>${i.endereco}</h3>
           <p>${i.cidade}</p>
           ${renderFeatureIcons(i, 4)}
-          <p class="price-line">${i.venda !== "R$ 0,00" && i.venda !== "Consultar" ? `Venda: ${i.venda}` : ""}${i.venda !== "R$ 0,00" && i.venda !== "Consultar" && i.locacao !== "R$ 0,00" && i.locacao !== "Consultar" ? " | " : ""}${i.locacao !== "R$ 0,00" && i.locacao !== "Consultar" ? `Locação: ${i.locacao}` : ""}</p>
+          ${priceLineHTML(i)}
           <div class="card-actions">
             <a class="btn btn-primary" href="/detalhe.html?id=${encodeURIComponent(refKey(i.referencia || i._id).raw)}">Ver detalhes</a>
             <a class="btn btn-outline" href="https://wa.me/5567998126525?text=Ol%C3%A1!%20Tenho%20interesse%20no%20im%C3%B3vel%20ref%20${encodeURIComponent(refKey(i.referencia || i._id).raw)}%20-%20${encodeURIComponent(i.endereco)}" target="_blank" rel="noopener">Tenho interesse</a>
           </div>
         </div>
       </article>`
-    )
-    .join("");
+      )
+      .join("")
+    : `<div class="no-results-box"><h3>Não encontramos imóveis com esses critérios.</h3><p>Fale conosco para receber novas oportunidades.</p><a class="btn btn-primary" href="https://wa.me/5567998126525" target="_blank" rel="noopener">Falar no WhatsApp</a></div>`;
 
   if (loadMore) {
     loadMore.style.display = filtrados.length > visibleCount ? "inline-flex" : "none";
   }
+
+  return filtrados.length;
 }
 
 function matchesFinalidade(value, selected) {
@@ -342,8 +414,24 @@ function applyMobileFilters() {
   const activePill = document.querySelector(`.hero-search-pills .pill[data-fin="${filtroFinalidade || "todos"}"]`);
   activePill?.classList.add("active");
   visibleCount = 12;
-  render();
+  const total = render();
   closeMobileFilters();
+  scrollToResultsIfAny(total);
+}
+
+function clearFilters() {
+  q.value = "";
+  tipo.value = "";
+  cidade.value = "";
+  valor.value = "";
+  filtroFinalidade = "";
+  categoriaFiltro = "";
+  filtroQuartos = "";
+  filtroBairro = "";
+  document.querySelectorAll(".hero-search-pills .pill").forEach((b) => b.classList.remove("active"));
+  document.querySelector('.hero-search-pills .pill[data-fin="todos"]')?.classList.add("active");
+  visibleCount = 12;
+  render();
 }
 
 [q, tipo, cidade, valor].forEach((el) => el.addEventListener("input", () => {
@@ -361,6 +449,8 @@ document.querySelectorAll(".hero-search-pills .pill").forEach((btn) => {
   });
 });
 
+heroClearBtn?.addEventListener("click", clearFilters);
+
 document.querySelectorAll(".category-card").forEach((btn) => {
   btn.addEventListener("click", () => {
     document.querySelectorAll(".category-card").forEach((b) => b.classList.remove("active"));
@@ -370,10 +460,18 @@ document.querySelectorAll(".category-card").forEach((btn) => {
     tipo.value = "";
     document.querySelectorAll(".hero-search-pills .pill").forEach((b) => b.classList.remove("active"));
     visibleCount = 12;
-    document.getElementById("imoveis")?.scrollIntoView({ behavior: "smooth" });
-    render();
+    const total = render();
+    scrollToResultsIfAny(total);
   });
 });
+
+document.getElementById("hero-search-btn")?.addEventListener("click", () => {
+  visibleCount = 12;
+  const total = render();
+  scrollToResultsIfAny(total);
+});
+
+heroClearBtn?.addEventListener("click", clearFilters);
 
 if (loadMore) {
   loadMore.addEventListener("click", () => {
@@ -411,17 +509,20 @@ function renderDestaques() {
   if (!container) return;
   const destaques = imoveis.filter((i) => i.destaque).slice(0, 6);
   container.innerHTML = destaques
-    .map(
-      (i) => `
+      .map(
+        (i) => `
       <article class="card card-destaque reveal show">
-        <div class="thumb-wrap"><img ${responsiveImageAttrs(i.imagem, `Imovel ${i.referencia}`, { width: 800, height: 600, sizes: "(max-width: 768px) 100vw, 33vw", loading: "lazy" })} /></div>
+        <div class="thumb-wrap">
+          ${mapPinHTML(i)}
+          <img ${responsiveImageAttrs(i.imagem, `Imovel ${i.referencia}`, { width: 800, height: 600, sizes: "(max-width: 768px) 100vw, 33vw", loading: "lazy" })} />
+        </div>
         <div class="card-badge">Destaque</div>
         <div class="card-body">
           <div class="meta"><span class="tag">Ref ${i.referencia || i._id}</span><span class="tag">${i.tipo}</span><span class="tag">${i.finalidade}</span></div>
           <h3>${i.endereco}</h3>
           <p>${i.cidade}</p>
           ${renderFeatureIcons(i, 4)}
-          <p class="price-line">${i.venda !== "R$ 0,00" && i.venda !== "Consultar" ? `Venda: ${i.venda}` : ""}${i.venda !== "R$ 0,00" && i.venda !== "Consultar" && i.locacao !== "R$ 0,00" && i.locacao !== "Consultar" ? " | " : ""}${i.locacao !== "R$ 0,00" && i.locacao !== "Consultar" ? `Locação: ${i.locacao}` : ""}</p>
+          ${priceLineHTML(i)}
           <div class="card-actions">
             <a class="btn btn-primary" href="/detalhe.html?id=${encodeURIComponent(refKey(i.referencia || i._id).raw)}">Ver detalhes</a>
             <a class="btn btn-outline" href="https://wa.me/5567998126525?text=Ol%C3%A1!%20Tenho%20interesse%20no%20im%C3%B3vel%20ref%20${encodeURIComponent(refKey(i.referencia || i._id).raw)}%20-%20${encodeURIComponent(i.endereco)}" target="_blank" rel="noopener">Tenho interesse</a>

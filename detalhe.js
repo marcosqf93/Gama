@@ -71,6 +71,7 @@ async function initDetail() {
       copa: Number(item.copa || 0),
       area: extra.area || item.area || (item.metragem ? `${item.metragem} m²` : ""),
       metragem: Number(item.metragem || 0),
+      mapaUrl: extra.mapaUrl || item.mapaUrl || "",
       venda: item.venda || formatMoney(item.valorVenda),
       locacao: item.locacao || formatMoney(item.valorLocacao),
       destaque: Boolean(item.destaque ?? extra.destaque),
