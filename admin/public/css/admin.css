@@ -140,6 +140,8 @@ body::before {
 }
 .dash-table td { padding: .55rem .6rem; border-top: 1px solid var(--line); vertical-align: middle; }
 .dash-table tr:hover td { background: rgba(31,138,85,.04); }
+.dash-table tr.row-inactive td { opacity: .55; }
+.dash-table tr.row-featured td:first-child strong { color: var(--primary-deep); }
 .dash-table .actions { display: flex; gap: .35rem; flex-wrap: nowrap; }
 .dash-table .actions button {
   padding: .3rem .5rem; border: 0; border-radius: 8px; cursor: pointer; font-size: .75rem;
@@ -150,6 +152,20 @@ body::before {
 .btn-delete { background: rgba(192,57,43,.1); color: #c0392b; }
 .thumb-list { display: flex; gap: 3px; flex-wrap: wrap; }
 .thumb-list img { width: 36px; height: 28px; object-fit: cover; border-radius: 4px; border: 1px solid var(--line); }
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: .22rem .55rem;
+  border-radius: 999px;
+  font-size: .72rem;
+  font-weight: 800;
+  white-space: nowrap;
+}
+.status-pill-featured { background: rgba(245,179,66,.16); color: #9a5d00; }
+.status-pill-active { background: rgba(31,138,85,.12); color: var(--primary-deep); }
+.status-pill-inactive { background: rgba(192,57,43,.12); color: #9f2f23; }
+.status-pill-muted { background: rgba(75,105,88,.1); color: var(--muted); }
 .dash-empty { display: none; text-align: center; color: var(--muted); padding: 2rem; font-size: .9rem; background: rgba(255,255,255,.5); border-radius: 14px; }
 
 /* ----- Modal ----- */

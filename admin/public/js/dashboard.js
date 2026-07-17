@@ -88,13 +88,15 @@
     tbody.innerHTML = data.properties
       .map(
         (p) =>
-          `<tr>
+          `<tr class="${p.ativo === false ? 'row-inactive' : ''} ${p.destaque ? 'row-featured' : ''}">
             <td><strong>${esc(p.referencia || "-")}</strong></td>
             <td>${esc(p.tipo)}</td>
             <td>${esc(p.finalidade)}</td>
             <td>${esc(p.cidade)}</td>
             <td>${p.valorVenda ? "R$ " + fmt(p.valorVenda) : ""}${p.valorVenda && p.valorLocacao ? " / " : ""}${p.valorLocacao ? "R$ " + fmt(p.valorLocacao) + "/mês" : ""}</td>
             <td><div class="thumb-list">${(p.imagens || []).slice(0, 4).map((i) => `<img src="${i}" alt="" />`).join("")}</div></td>
+            <td>${p.destaque ? '<span class="status-pill status-pill-featured">Em destaque</span>' : '<span class="status-pill status-pill-muted">Normal</span>'}</td>
+            <td>${p.ativo === false ? '<span class="status-pill status-pill-inactive">Inativo</span>' : '<span class="status-pill status-pill-active">Ativo</span>'}</td>
             <td>
               <div class="actions">
                 <button class="btn-edit" data-id="${p._id}">

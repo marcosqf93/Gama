@@ -24,6 +24,22 @@ async function initDetail() {
     return parseFloat(match[0].replace(/\./g, "").replace(",", ".")) || 0;
   }
 
+  function slugifyText(value) {
+    return String(value || "")
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "");
+  }
+
+  function propertySlug(item) {
+    const ref = refKey(item.referencia || item._id).raw;
+    const parts = [item.tipo, item.bairro || item.endereco, item.cidade].map(slugifyText).filter(Boolean);
+    const base = parts.join("-") || "imovel";
+    return `${base}-${ref}`.replace(/-+/g, "-").replace(/^-+|-+$/g, "");
+  }
+
   function isCloudinaryUrl(url) {
     return typeof url === "string" && /res\.cloudinary\.com/.test(url) && /\/upload\//.test(url);
   }
@@ -57,14 +73,19 @@ async function initDetail() {
 
   function normalizeProperty(item, extra = {}) {
     const photos = extra.fotos || (Array.isArray(item.imagens) && item.imagens.length ? item.imagens : item.imagem ? [item.imagem] : []);
+    const referencia = String(item.referencia || "");
+    const tipo = item.tipo || "";
+    const bairro = extra.bairro || item.bairro || "";
+    const endereco = extra.endereco || item.endereco || item.bairro || "";
+    const cidade = extra.cidade || item.cidade || "";
     return {
       _id: item._id || "",
-      referencia: String(item.referencia || ""),
-      tipo: item.tipo || "",
+      referencia,
+      tipo,
       finalidade: item.finalidade || "",
-      cidade: extra.cidade || item.cidade || "",
-      bairro: extra.bairro || item.bairro || "",
-      endereco: extra.endereco || item.endereco || item.bairro || "",
+      cidade,
+      bairro,
+      endereco,
       fotos: photos,
       imagem: photos[0] || "",
       dormitorios: Number(item.dormitorios || 0),
@@ -81,18 +102,21 @@ async function initDetail() {
       area: extra.area || item.area || (item.metragem ? `${item.metragem} m²` : ""),
       metragem: parseMeasure(item.metragem),
       mapaUrl: extra.mapaUrl || item.mapaUrl || "",
+      valorVenda: Number(item.valorVenda || 0),
+      valorLocacao: Number(item.valorLocacao || 0),
       venda: item.venda || formatMoney(item.valorVenda),
       locacao: item.locacao || formatMoney(item.valorLocacao),
       destaque: Boolean(item.destaque ?? extra.destaque),
       tourVirtual: Boolean(extra.tourVirtual ?? item.tourVirtual),
       descricao: item.descricao || "",
+      slug: propertySlug({ referencia, tipo, bairro, endereco, cidade }),
       ativo: item.ativo !== false,
     };
   }
 
   function refKey(value) {
     const raw = String(value ?? "").trim();
-    const numeric = raw.replace(/^0+(\d)$/, "$1");
+    const numeric = raw.replace(/^0+/, "") || "0";
     return { raw, numeric };
   }
 
@@ -100,6 +124,41 @@ async function initDetail() {
     if (value === "ambos") return "Venda e locação";
     if (value === "venda") return "Venda";
     return "Locação";
+  }
+
+  function normalizeText(value) {
+    return String(value || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+  }
+
+  function similarGroup(type) {
+    const t = normalizeText(type);
+    if (t.includes("terreno") || t.includes("lote") || t.includes("area")) return "land";
+    if (t.includes("fazenda") || t.includes("chacara") || t.includes("sitio")) return "rural";
+    if (t.includes("loja") || t.includes("sala") || t.includes("predio") || t.includes("comercial")) return "commercial";
+    return "residential";
+  }
+
+  function matchesSimilarType(item, base) {
+    return similarGroup(item.tipo) === similarGroup(base.tipo);
+  }
+
+  function validPriceLabel(label, value) {
+    const text = String(value || "").trim();
+    const numeric = parseFloat(text.replace(/[R$\s.]/g, "").replace(",", ".")) || 0;
+    if (!text || numeric <= 0 || text === "Consultar") return "";
+    return `${label}: ${text}`;
+  }
+
+  function priceLineHTML(item) {
+    const line = [validPriceLabel("Venda", item.venda), validPriceLabel("Locação", item.locacao)].filter(Boolean).join(" | ");
+    return line ? `<p class="price-line">${line}</p>` : "";
+  }
+
+  function mapPinHTML(item) {
+    const icon = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s6-5.2 6-11a6 6 0 0 0-12 0c0 5.8 6 11 6 11z"/><circle cx="12" cy="10" r="2.2"/></svg>';
+    const href = String(item.mapaUrl || "").trim();
+    if (!href) return `<span class="card-map-pin" aria-hidden="true">${icon}</span>`;
+    return `<a class="card-map-pin card-map-link" href="${href}" target="_blank" rel="noopener" aria-label="Abrir mapa do imóvel">${icon}</a>`;
   }
 
   function featureIcon(type) {
@@ -136,7 +195,7 @@ async function initDetail() {
       cards.push({ type: "feature", key, label, value: n });
     };
 
-    pushFeature("metragem", "Metragem", item.metragem);
+    pushText("Metragem", item.area && item.area !== "0" && item.area !== "0 m²" ? item.area : (item.metragem ? `${item.metragem} m²` : ""));
     pushFeature("suites", "Suíte", item.suites);
     pushFeature("cozinhas", "Cozinha", item.cozinhas);
     pushFeature("vagas", "Garagem", item.garagens || item.vagas);
@@ -148,6 +207,11 @@ async function initDetail() {
     pushFeature("copa", "Copa", item.copa);
     pushFeature("varandas", "Varanda", item.varandas);
     return cards;
+  }
+
+  function rawPriceToText(value) {
+    const n = Number(value) || 0;
+    return n > 0 ? new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(n) : "";
   }
 
   function propertyFeatureEntries(item) {
@@ -196,10 +260,19 @@ async function initDetail() {
   const params = new URLSearchParams(window.location.search);
   const refParam = params.get("ref") || params.get("id") || "";
   const propriedades = await loadProperties();
-  const target = refKey(refParam);
+  const pathParts = window.location.pathname.split("/").filter(Boolean);
+  const routeSlug = pathParts[0] === "imovel" ? decodeURIComponent(pathParts.slice(1).join("/")) : "";
+  const refFromSlug = routeSlug.match(/-(\d+)$/)?.[1] || "";
+  const target = refKey(refParam || refFromSlug);
   const imovelRaw = propriedades.find((item) => {
     const ref = refKey(item.referencia);
-    return ref.raw === target.raw || ref.numeric === target.numeric || item._id === refParam || (!refParam && item.referencia);
+    return (
+      item.slug === routeSlug ||
+      ref.raw === target.raw ||
+      ref.numeric === target.numeric ||
+      item._id === refParam ||
+      (!refParam && !routeSlug && item.referencia)
+    );
   });
   const imovel = imovelRaw ? imovelRaw : null;
   if (!box) return;
@@ -218,16 +291,29 @@ async function initDetail() {
   try {
     const fotos = Array.isArray(imovel.fotos) && imovel.fotos.length ? imovel.fotos : [imovel.imagem];
     const acao = acaoLabel(imovel.finalidade);
-    const preco = imovel.venda !== "R$ 0,00" && imovel.venda !== "Consultar" ? imovel.venda
-      : imovel.locacao !== "R$ 0,00" && imovel.locacao !== "Consultar" ? imovel.locacao
-      : null;
+    const preco = rawPriceToText(imovel.valorVenda) || rawPriceToText(imovel.valorLocacao)
+      || (imovel.venda !== "R$ 0,00" && imovel.venda !== "Consultar" ? imovel.venda : "")
+      || (imovel.locacao !== "R$ 0,00" && imovel.locacao !== "Consultar" ? imovel.locacao : "")
+      || null;
     const highlightCards = detailCards(imovel, acao, preco);
 
-    const seoTitle = `${imovel.endereco} - ${imovel.tipo} em ${imovel.cidade} | Imobiliária Geraldo Gama`;
-    const seoDesc = `${imovel.tipo} ${imovel.finalidade === "venda" ? "à venda" : imovel.finalidade === "aluguel" ? "para locação" : "para venda e locação"} em ${imovel.cidade}. ${imovel.dormitorios} dormitório(s), ${imovel.vagas} vaga(s), ${imovel.area}. Fale com a Imobiliária Geraldo Gama.`;
+    const finalidadeLabel = imovel.finalidade === "venda" ? "à venda" : imovel.finalidade === "aluguel" ? "para locação" : "à venda e locação";
+    const bedrooms = Number(imovel.dormitorios) || 0;
+    const vagas = Number(imovel.vagas || imovel.garagens) || 0;
+    const areaText = String(imovel.area || "").trim();
+    const titleLocation = imovel.bairro
+      ? `${imovel.bairro}${imovel.cidade ? ` em ${imovel.cidade}` : ""}`
+      : (imovel.cidade || imovel.endereco || "Aquidauana");
+    const descLocation = [imovel.bairro || imovel.endereco || "", imovel.cidade || ""].filter(Boolean).join(", ");
+    const roomsText = bedrooms ? `${bedrooms} ${bedrooms === 1 ? "quarto" : "quartos"}` : "";
+    const vagasText = vagas ? `${vagas} ${vagas === 1 ? "vaga" : "vagas"}` : "";
+    const seoTitle = `${imovel.tipo}${roomsText ? ` com ${roomsText}` : ""} ${finalidadeLabel} no ${titleLocation} | Geraldo Gama`;
+    const seoDesc = `${imovel.tipo} ${finalidadeLabel} no ${descLocation}${[roomsText, vagasText, areaText].filter(Boolean).length ? `, com ${[roomsText, vagasText, areaText].filter(Boolean).join(", ")}` : ""}. Consulte preço, fotos e agende uma visita.`;
     document.title = seoTitle;
     const setMeta = (sel, attr, val) => { const el = document.querySelector(sel); if (el) el.setAttribute(attr, val); };
-    const slugUrl = `https://geraldogamaimv.com.br/detalhe.html?id=${imovel.referencia}`;
+    const slugPath = `/imovel/${encodeURIComponent(imovel.slug || propertySlug(imovel))}`;
+    const slugUrl = `https://geraldogamaimv.com.br${slugPath}`;
+    try { history.replaceState(null, "", slugPath); } catch {}
     setMeta('meta[name="description"]', "content", seoDesc);
     setMeta('meta[property="og:title"]', "content", seoTitle);
     setMeta('meta[property="og:description"]', "content", seoDesc);
@@ -276,7 +362,14 @@ async function initDetail() {
     document.head.appendChild(ld);
     const semelhantes = propriedades
       .filter((item) => item.referencia !== imovel.referencia)
-      .filter((item) => item.tipo === imovel.tipo || item.cidade === imovel.cidade || item.finalidade === imovel.finalidade)
+      .filter((item) => matchesSimilarType(item, imovel))
+      .sort((a, b) => {
+        const sameTypeA = a.tipo === imovel.tipo ? 1 : 0;
+        const sameTypeB = b.tipo === imovel.tipo ? 1 : 0;
+        const sameCityA = a.cidade === imovel.cidade ? 1 : 0;
+        const sameCityB = b.cidade === imovel.cidade ? 1 : 0;
+        return (sameTypeB - sameTypeA) || (sameCityB - sameCityA);
+      })
       .slice(0, 3);
 
   box.innerHTML = `
@@ -323,13 +416,22 @@ async function initDetail() {
       </div>
       <div class="detail-content">
         <div class="detail-grid detail-grid-premium">
-          ${highlightCards.map((item) => item.type === "text" ? `<div class="detail-card detail-card-text"><span>${item.label}</span><strong>${item.value}</strong></div>` : `<div class="detail-card detail-card-feature" title="${item.label}: ${item.value}"><span class="detail-card-icon">${featureIcon(item.key)}</span><strong>${item.value}</strong></div>`).join("")}
+          ${highlightCards.map((item) => item.type === "text" ? `<div class="detail-card detail-card-text"><span>${item.label}</span><strong>${item.value}</strong></div>` : `<div class="detail-card detail-card-feature" title="${item.label}: ${item.value}"><div class="detail-card-head"><span class="detail-card-icon">${featureIcon(item.key)}</span><span class="detail-card-label">${item.label}</span></div><span class="detail-card-value">${item.value}</span></div>`).join("")}
         </div>
 
         <p class="descricao-imovel">
           ${imovel.tipo} localizado em ${imovel.cidade}, na região ${imovel.endereco}. Disponibilidade para ${acao.toLowerCase()}.
           Para condições comerciais atualizadas e visita presencial, fale direto com a equipe da Imobiliária Geraldo Gama.
         </p>
+
+        <div class="detail-map-block">
+          <p class="detail-map-title">${imovel.endereco}</p>
+          <div class="detail-map-frame">
+            ${imovel.mapaUrl
+              ? `<a href="${imovel.mapaUrl}" target="_blank" rel="noopener">Abrir mapa</a>`
+              : `<iframe loading="lazy" referrerpolicy="no-referrer-when-downgrade" src="https://www.google.com/maps?q=${encodeURIComponent(`${imovel.endereco}, ${imovel.cidade}`)}&output=embed" title="Mapa do imóvel"></iframe>`}
+          </div>
+        </div>
 
         <div class="detail-actions">
           <a class="btn btn-primary" href="https://wa.me/5567998126525?text=Olá!%20Quero%20falar%20sobre%20este%20imóvel%20ref%20${imovel.referencia}." target="_blank" rel="noopener">Falar sobre este imóvel</a>
@@ -358,15 +460,19 @@ async function initDetail() {
           const foto = (extra && extra.fotos && extra.fotos[0]) || item.imagem;
           const endereco = (extra && extra.endereco) || item.endereco;
           const cidade = (extra && extra.cidade) || item.cidade;
-          const url = `/detalhe.html?id=${encodeURIComponent(item.referencia)}`;
+      const url = `/imovel/${encodeURIComponent(item.slug || propertySlug(item))}?ref=${encodeURIComponent(refKey(item.referencia || item._id).raw)}`;
           return `
-            <article class="card card-similar">
-              <div class="thumb-wrap"><img ${responsiveImageAttrs(foto, `Imóvel ${item.referencia}`, { width: 800, height: 600, sizes: "(max-width: 768px) 100vw, 33vw", loading: "lazy" })} /></div>
+            <article class="card reveal show card-similar">
+              <div class="thumb-wrap">
+                ${mapPinHTML(item)}
+                <img ${responsiveImageAttrs(foto, `Imóvel ${item.referencia}`, { width: 800, height: 600, sizes: "(max-width: 768px) 100vw, 33vw", loading: "lazy" })} />
+              </div>
               <div class="card-body">
-                <div class="meta"><span class="tag">Ref ${item.referencia}</span><span class="tag">${item.tipo}</span></div>
+                <div class="meta"><span class="tag">Ref ${item.referencia || item._id}</span><span class="tag">${item.tipo}</span><span class="tag">${item.finalidade}</span></div>
                 <h3>${endereco}</h3>
                 <p>${cidade}</p>
                 ${renderFeatureIcons(item, 4)}
+                ${priceLineHTML(item)}
                 <div class="card-actions">
                   <a class="btn btn-primary" href="${url}">Ver detalhes</a>
                 </div>

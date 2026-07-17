@@ -26,6 +26,7 @@
       "@type": "RealEstateAgent",
       "@id": "https://geraldogamaimv.com.br",
       "name": "Imobiliária Geraldo Gama",
+      "identifier": "CRECI 9225-J",
       "description": "Imobiliária em Aquidauana e Anastácio MS com 10 anos de mercado. Venda, locação e aluguel de casas, terrenos, chácaras, fazendas e imóveis comerciais em Aquidauana, Anastácio, Camisão, Piraputanga e região.",
       "image": "https://res.cloudinary.com/dqq4qonkb/image/upload/w_1200,h_630,c_fill/v1779394470/images_ikvtoi.jpg",
       "url": "https://geraldogamaimv.com.br",
@@ -88,6 +89,7 @@
       href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=DM+Serif+Display:opsz@9..40&family=Dancing+Script:wght@400;700&display=swap"
       rel="stylesheet"
     />
+    <script src="/analytics.js" defer></script>
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
@@ -132,10 +134,10 @@
     <section class="trust-strip reveal reveal-fade" id="prova-social">
       <div class="container">
         <div class="trust-strip-inner">
-          <div class="trust-item" data-trust="count"><span>Portfólio</span><strong>+17 imóveis</strong></div>
+          <div class="trust-item" data-trust="count"><span>Portfólio</span><strong data-live-property-count data-live-property-count-format="compact"></strong></div>
           <div class="trust-item"><span>Experiência</span><strong>10 anos</strong></div>
-          <div class="trust-item"><span>Registro</span><strong>CRECI 4511-MS</strong></div>
-          <div class="trust-item"><span>Atuação</span><strong>Atuação MS</strong></div>
+          <div class="trust-item"><span>Registro</span><strong>CRECI 9225-J</strong></div>
+          <div class="trust-item"><span>Atuação</span><strong>MS</strong></div>
         </div>
       </div>
     </section>
@@ -160,28 +162,23 @@
           <div class="category-grid">
             <button class="category-card category-card-photo category-casa" data-cat="Casa" data-scroll="true">
               <span class="category-label">Casas</span>
-              <strong>Lar ideal para viver</strong>
-              <span class="category-subtitle">Residenciais e sobrado</span>
+              <span class="category-subtitle">Residências e sobrados para comprar ou alugar.</span>
             </button>
             <button class="category-card category-card-photo category-terreno" data-cat="Terreno" data-scroll="true">
               <span class="category-label">Terrenos</span>
-              <strong>Espaço para construir</strong>
-              <span class="category-subtitle">Lotes e áreas para construir</span>
+              <span class="category-subtitle">Lotes e áreas para construir ou investir.</span>
             </button>
             <button class="category-card category-card-photo category-chacara" data-cat="Chácara" data-scroll="true">
               <span class="category-label">Chácaras</span>
-              <strong>Contato com a natureza</strong>
-              <span class="category-subtitle">Campo e lazer</span>
+              <span class="category-subtitle">Imóveis para lazer, moradia e contato com a natureza.</span>
             </button>
             <button class="category-card category-card-photo category-fazenda" data-cat="Fazenda" data-scroll="true">
               <span class="category-label">Fazendas</span>
-              <strong>Grande porte e produção</strong>
-              <span class="category-subtitle">Rural e produção</span>
+              <span class="category-subtitle">Áreas rurais para produção e investimento.</span>
             </button>
             <button class="category-card category-card-photo category-comercial" data-cat="Comercial" data-scroll="true">
               <span class="category-label">Comercial</span>
-              <strong>Negócios e visibilidade</strong>
-              <span class="category-subtitle">Lojas e salas</span>
+              <span class="category-subtitle">Lojas, salas e imóveis para o seu negócio.</span>
             </button>
           </div>
         </div>
@@ -269,7 +266,7 @@
         <div class="cta-content">
           <p class="eyebrow">Proprietário</p>
           <h2>Quer vender ou alugar seu imóvel?</h2>
-          <p>Anuncie conosco e alcance milhares de potenciais compradores e inquilinos em Aquidauana e região.</p>
+          <p>Conte com divulgação profissional e atendimento especializado para vender ou alugar seu imóvel.</p>
         </div>
         <form class="cta-form" id="cta-form">
           <div class="cta-form-grid">
@@ -311,7 +308,7 @@
             <label>Área (m²)<input type="text" name="cta_area" placeholder="Ex: 200" /></label>
           </div>
           <label>Observações<textarea name="cta_obs" rows="2" placeholder="Informações adicionais (opcional)"></textarea></label>
-          <button type="submit" class="btn btn-primary btn-cta">Solicitar avaliação do meu imóvel</button>
+          <button type="submit" class="btn btn-primary btn-cta">Quero anunciar meu imóvel</button>
           <p class="cta-form-feedback" id="cta-feedback"></p>
         </form>
       </div>
@@ -330,10 +327,10 @@
               Nossa atuação vai de imóveis urbanos a áreas rurais e comerciais, sempre com atendimento personalizado e
               foco em resultados.
             </p>
-            <a class="btn btn-primary" href="about.html">Conheça nossa história</a>
+            <a class="btn btn-primary" href="/about.html">Conheça nossa história</a>
           </div>
           <div class="badge-grid reveal reveal-zoom">
-            <article><strong>CRECI</strong><span>4511-MS</span></article>
+            <article><strong>CRECI</strong><span>9225-J</span></article>
             <article><strong>MS</strong><span>Aquidauana e região</span></article>
             <article><strong>+10</strong><span>Anos de mercado</span></article>
             <article><strong data-live-property-count>+17</strong><span>Imóveis ativos</span></article>
@@ -363,7 +360,7 @@
               </label>
               <div class="dynamic-fields" id="dynamic-fields"></div>
               <label>Mensagem<textarea name="mensagem" rows="3" placeholder="Conte mais sobre o que procura (opcional)"></textarea></label>
-              <button type="submit" class="btn btn-primary" id="form-submit">Encontrar meu imóvel</button>
+              <button type="submit" class="btn btn-primary" id="form-submit">Quero anunciar meu imóvel</button>
               <p class="form-feedback" id="form-feedback"></p>
             </form>
             <aside class="contact-proof">
@@ -391,7 +388,7 @@
               </div>
               <div class="proof-card">
                 <strong>CRECI</strong>
-                <span>4511-MS</span>
+                <span>9225-J</span>
               </div>
             </aside>
           </div>
@@ -425,10 +422,10 @@
     </section>
 
     <div id="site-footer"></div>
-    <script src="components.js" defer></script>
-    <script src="imoveis-data.js" defer></script>
-    <script src="imoveis-enrichment.js" defer></script>
-    <script src="script.js" defer></script>
+    <script src="components.js?v=20260716-3" defer></script>
+    <script src="imoveis-data.js?v=20260716-3" defer></script>
+    <script src="imoveis-enrichment.js?v=20260716-3" defer></script>
+    <script src="script.js?v=20260716-3" defer></script>
     <script>
     (function(){
       const el = document.getElementById("word-rotator");

@@ -6,7 +6,7 @@ function renderLayout() {
     header.innerHTML = `
       <header class="topbar">
         <div class="container topbar-wrap">
-          <a href="index.html" class="brand-link">
+          <a href="/index.html" class="brand-link">
             <img class="brand" src="https://res.cloudinary.com/dqq4qonkb/image/upload/v1779394470/images_ikvtoi.jpg" alt="Imobiliária Geraldo Gama" />
           </a>
           <span class="brand-wordmark desktop-only">Imobiliária Geraldo Gama</span>
@@ -14,14 +14,15 @@ function renderLayout() {
           <button class="menu-toggle" id="menu-toggle" aria-label="Abrir menu" aria-expanded="false">☰</button>
 
           <nav class="main-nav" id="main-nav">
-            <a href="index.html#home">Início</a>
-            <a href="about.html">Quem Somos</a>
-            <a class="nav-highlight" href="index.html#cta-anunciar">Anunciar</a>
-            <a href="index.html#imoveis">Imóveis</a>
-            <a href="index.html#contato">Contato</a>
+            <a href="/index.html#home">Início</a>
+            <a href="/about.html">Quem Somos</a>
+            <a class="nav-highlight" href="/index.html#cta-anunciar">Anunciar</a>
+            <a href="/index.html#imoveis">Imóveis</a>
+            <a href="/index.html#contato">Contato</a>
           </nav>
 
           <div class="social-mini">
+            <a class="icon-btn" href="https://geraldo-gama-admin.onrender.com/admin/login" target="_blank" rel="noopener" aria-label="Login do admin" title="Login do admin"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/><circle cx="12" cy="15" r="1.2"/></svg></a>
             <a class="icon-btn" href="https://www.instagram.com/imobiliariageraldo/" target="_blank" rel="noopener" aria-label="Instagram"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4.5"/><circle cx="17.5" cy="6.5" r="1.5"/></svg></a>
             <a class="icon-btn" href="https://www.facebook.com/imoveisaquidauana" target="_blank" rel="noopener" aria-label="Facebook"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3V2z"/></svg></a>
             <a class="icon-btn" href="https://wa.me/5567998126525" target="_blank" rel="noopener" aria-label="WhatsApp"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 11.5a8.5 8.5 0 0 1-8.5 8.5 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.5 8.5 0 0 1-7.6-11.5A8.5 8.5 0 0 1 12.5 3h.5a8.5 8.5 0 0 1 8 8.5v.5z"/></svg></a>
@@ -45,7 +46,7 @@ function renderLayout() {
             <p><strong>Contato:</strong> (67) 99812-6525</p>
             <p><strong>E-mail:</strong> geraldogamaimv@gmail.com</p>
             <p><strong>Horário:</strong> seg a sex 07:00-11:00 / 13:00-17:00 | sáb 07:00-11:00 | dom fechado</p>
-            <p><strong>CRECI:</strong> 4511-MS | <strong>10 anos</strong> de mercado</p>
+            <p><strong>CRECI:</strong> 9225-J | <strong>10 anos</strong> de mercado</p>
           </section>
 
           <section>
@@ -102,11 +103,10 @@ const PROPERTY_API_URL = "https://geraldo-gama-admin.onrender.com/api/properties
 
 function updateLivePropertyCounts(total) {
   const n = Number(total) || 0;
-  if (n <= 0) return;
   document.querySelectorAll("[data-live-property-count]").forEach((el) => {
     if (!el) return;
     const compact = el.getAttribute("data-live-property-count-format") === "compact";
-    el.textContent = compact ? (n === 1 ? "+1" : `+${n}`) : (n === 1 ? "1 imóvel" : `+${n} imóveis`);
+    el.textContent = compact ? String(n) : (n === 1 ? "1 imóvel" : `${n} imóveis`);
   });
 }
 

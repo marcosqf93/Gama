@@ -20,16 +20,37 @@ function parseMeasure(value) {
   return parseFloat(match[0].replace(/\./g, "").replace(",", ".")) || 0;
 }
 
+function slugifyText(value) {
+  return String(value || "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
+function propertySlug(item) {
+  const ref = refKey(item.referencia || item._id).raw;
+  const parts = [item.tipo, item.bairro || item.endereco, item.cidade].map(slugifyText).filter(Boolean);
+  const base = parts.join("-") || "imovel";
+  return `${base}-${ref}`.replace(/-+/g, "-").replace(/^-+|-+$/g, "");
+}
+
 function normalizeProperty(item, extra = {}) {
   const photos = extra.fotos || (Array.isArray(item.imagens) && item.imagens.length ? item.imagens : item.imagem ? [item.imagem] : []);
+  const referencia = String(item.referencia || "");
+  const tipo = item.tipo || "";
+  const bairro = extra.bairro || item.bairro || "";
+  const endereco = extra.endereco || item.endereco || bairro || "";
+  const cidade = extra.cidade || item.cidade || "";
   return {
     _id: item._id || "",
-    referencia: String(item.referencia || ""),
-    tipo: item.tipo || "",
+    referencia,
+    tipo,
     finalidade: item.finalidade || "",
-    cidade: extra.cidade || item.cidade || "",
-    bairro: extra.bairro || item.bairro || "",
-    endereco: extra.endereco || item.endereco || item.bairro || "",
+    cidade,
+    bairro,
+    endereco,
     fotos: photos,
     imagem: photos[0] || "",
     dormitorios: Number(item.dormitorios || 0),
@@ -46,17 +67,20 @@ function normalizeProperty(item, extra = {}) {
     area: extra.area || item.area || (item.metragem ? `${item.metragem} m²` : ""),
     metragem: parseMeasure(item.metragem),
     mapaUrl: extra.mapaUrl || item.mapaUrl || "",
+    valorVenda: Number(item.valorVenda || 0),
+    valorLocacao: Number(item.valorLocacao || 0),
     venda: item.venda || formatMoney(item.valorVenda),
     locacao: item.locacao || formatMoney(item.valorLocacao),
     destaque: Boolean(item.destaque ?? extra.destaque),
     descricao: item.descricao || "",
+    slug: propertySlug({ referencia, tipo, bairro, endereco, cidade }),
     ativo: item.ativo !== false,
   };
 }
 
 function refKey(value) {
   const raw = String(value ?? "").trim();
-  const numeric = raw.replace(/^0+(\d)$/, "$1");
+  const numeric = raw.replace(/^0+/, "") || "0";
   return { raw, numeric };
 }
 
@@ -316,7 +340,12 @@ async function carregarImoveis() {
     const response = await fetch(API_URL, { cache: "no-store" });
     if (!response.ok) throw new Error("API indisponível");
     const payload = await response.json();
-    const live = Array.isArray(payload.properties) ? payload.properties.map((item) => normalizeProperty(item)) : [];
+    const live = Array.isArray(payload.properties)
+      ? payload.properties.map((item) => {
+          const extra = typeof IMOVEIS_ENRICHMENT !== "undefined" ? IMOVEIS_ENRICHMENT[String(item.referencia)] : null;
+          return normalizeProperty(item, extra || {});
+        })
+      : [];
     if (live.length) {
       setImoveis(live);
       return;
@@ -348,7 +377,7 @@ function render() {
           ${renderFeatureIcons(i, 4)}
           ${priceLineHTML(i)}
           <div class="card-actions">
-            <a class="btn btn-primary" href="/detalhe.html?id=${encodeURIComponent(refKey(i.referencia || i._id).raw)}">Ver detalhes</a>
+            <a class="btn btn-primary" href="/imovel/${encodeURIComponent(i.slug || propertySlug(i))}?ref=${encodeURIComponent(refKey(i.referencia || i._id).raw)}">Ver detalhes</a>
             <a class="btn btn-outline" href="https://wa.me/5567998126525?text=Ol%C3%A1!%20Tenho%20interesse%20no%20im%C3%B3vel%20ref%20${encodeURIComponent(refKey(i.referencia || i._id).raw)}%20-%20${encodeURIComponent(i.endereco)}" target="_blank" rel="noopener">Tenho interesse</a>
           </div>
         </div>
@@ -532,7 +561,7 @@ function renderDestaques() {
           ${renderFeatureIcons(i, 4)}
           ${priceLineHTML(i)}
           <div class="card-actions">
-            <a class="btn btn-primary" href="/detalhe.html?id=${encodeURIComponent(refKey(i.referencia || i._id).raw)}">Ver detalhes</a>
+            <a class="btn btn-primary" href="/imovel/${encodeURIComponent(i.slug || propertySlug(i))}?ref=${encodeURIComponent(refKey(i.referencia || i._id).raw)}">Ver detalhes</a>
             <a class="btn btn-outline" href="https://wa.me/5567998126525?text=Ol%C3%A1!%20Tenho%20interesse%20no%20im%C3%B3vel%20ref%20${encodeURIComponent(refKey(i.referencia || i._id).raw)}%20-%20${encodeURIComponent(i.endereco)}" target="_blank" rel="noopener">Tenho interesse</a>
           </div>
         </div>
