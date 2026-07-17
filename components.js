@@ -100,6 +100,7 @@ function renderLayout() {
 renderLayout();
 
 const PROPERTY_API_URL = "https://geraldo-gama-admin.onrender.com/api/properties?limit=500";
+let liveCountsRequestInFlight = null;
 
 function updateLivePropertyCounts(total) {
   const n = Number(total) || 0;
@@ -110,25 +111,41 @@ function updateLivePropertyCounts(total) {
   });
 }
 
-(async function syncLiveCounts() {
+async function syncLiveCounts() {
+  if (liveCountsRequestInFlight) return liveCountsRequestInFlight;
   if (!document.querySelector("[data-live-property-count]")) return;
-  try {
+  liveCountsRequestInFlight = (async () => {
+    try {
     const res = await fetch(PROPERTY_API_URL, { cache: "no-store" });
     if (!res.ok) throw new Error("API indisponível");
     const payload = await res.json();
     const total = Array.isArray(payload.properties) ? payload.properties.filter((item) => item && item.ativo !== false).length : 0;
     updateLivePropertyCounts(total);
-  } catch {
-    if (window.IMOVEIS && Array.isArray(window.IMOVEIS)) {
-      if (window.IMOVEIS.length > 0) updateLivePropertyCounts(window.IMOVEIS.length);
+    } catch {
+      if (window.IMOVEIS && Array.isArray(window.IMOVEIS)) {
+        if (window.IMOVEIS.length > 0) updateLivePropertyCounts(window.IMOVEIS.length);
+      }
+    } finally {
+      liveCountsRequestInFlight = null;
     }
-  }
-})();
+  })();
+  return liveCountsRequestInFlight;
+}
+
+syncLiveCounts();
 
 window.addEventListener("imoveis-ready", (event) => {
   if (typeof event?.detail?.total === "number") {
     updateLivePropertyCounts(event.detail.total);
   }
+});
+
+window.addEventListener("pageshow", () => {
+  syncLiveCounts();
+});
+
+document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState === "visible") syncLiveCounts();
 });
 
 // scroll to top

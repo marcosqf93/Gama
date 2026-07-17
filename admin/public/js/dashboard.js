@@ -89,15 +89,15 @@
       .map(
         (p) =>
           `<tr class="${p.ativo === false ? 'row-inactive' : ''} ${p.destaque ? 'row-featured' : ''}">
-            <td><strong>${esc(p.referencia || "-")}</strong></td>
-            <td>${esc(p.tipo)}</td>
-            <td>${esc(p.finalidade)}</td>
-            <td>${esc(p.cidade)}</td>
-            <td>${p.valorVenda ? "R$ " + fmt(p.valorVenda) : ""}${p.valorVenda && p.valorLocacao ? " / " : ""}${p.valorLocacao ? "R$ " + fmt(p.valorLocacao) + "/mês" : ""}</td>
-            <td><div class="thumb-list">${(p.imagens || []).slice(0, 4).map((i) => `<img src="${i}" alt="" />`).join("")}</div></td>
-            <td>${p.destaque ? '<span class="status-pill status-pill-featured">Em destaque</span>' : '<span class="status-pill status-pill-muted">Normal</span>'}</td>
-            <td>${p.ativo === false ? '<span class="status-pill status-pill-inactive">Inativo</span>' : '<span class="status-pill status-pill-active">Ativo</span>'}</td>
-            <td>
+            <td data-label="Ref"><strong>${esc(p.referencia || "-")}</strong></td>
+            <td data-label="Tipo">${esc(p.tipo)}</td>
+            <td data-label="Finalidade">${esc(p.finalidade)}</td>
+            <td data-label="Cidade">${esc(p.cidade)}</td>
+            <td data-label="Valor">${p.valorVenda ? "R$ " + fmt(p.valorVenda) : ""}${p.valorVenda && p.valorLocacao ? " / " : ""}${p.valorLocacao ? "R$ " + fmt(p.valorLocacao) + "/mês" : ""}</td>
+            <td data-label="Imagens"><div class="thumb-list">${(p.imagens || []).slice(0, 4).map((i) => `<img src="${i}" alt="" />`).join("")}</div></td>
+            <td data-label="Destaque">${p.destaque ? '<span class="status-pill status-pill-featured">Em destaque</span>' : '<span class="status-pill status-pill-muted">Normal</span>'}</td>
+            <td data-label="Status">${p.ativo === false ? '<span class="status-pill status-pill-inactive">Inativo</span>' : '<span class="status-pill status-pill-active">Ativo</span>'}</td>
+            <td data-label="Ações">
               <div class="actions">
                 <button class="btn-edit" data-id="${p._id}">
                   <svg viewBox="0 0 24 24" width="14" height="14"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>
