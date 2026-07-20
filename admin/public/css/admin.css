@@ -281,7 +281,7 @@ body::before {
     font-size: .9rem;
     padding: .65rem .75rem;
   }
-  .btn-search { width: 100%; height: 44px; }
+  .btn-search { width: 44px; height: 44px; flex: 0 0 44px; }
   .dash-table-wrap {
     overflow: visible;
     background: transparent;
@@ -343,12 +343,13 @@ body::before {
     align-items: stretch;
   }
   .page-actions {
-    justify-content: stretch;
+    justify-content: flex-start;
   }
   .page-btn {
-    flex: 1 1 90px;
+    flex: 0 0 auto;
     min-width: 0;
-    padding: .55rem .7rem;
+    padding: .45rem .6rem;
+    font-size: .75rem;
   }
   .modal-overlay { padding: 0; }
   .modal {

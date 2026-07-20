@@ -3,7 +3,7 @@
   let editingId = null;
   let uploadedImages = [];
   let currentPage = 1;
-  const pageSize = 10;
+  const pageSize = 20;
 
   /* ---- auth check ---- */
   function getToken() {
