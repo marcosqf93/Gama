@@ -2,6 +2,8 @@
   const API = "/api/properties";
   let editingId = null;
   let uploadedImages = [];
+  let currentPage = 1;
+  const pageSize = 10;
 
   /* ---- auth check ---- */
   function getToken() {
@@ -46,7 +48,7 @@
 
   /* ---- load filters ---- */
   async function loadFilters() {
-    const res = await api("");
+    const res = await api("?limit=1000");
     if (!res.ok) return;
     const data = await res.json();
     const tipos = new Set();
@@ -62,12 +64,57 @@
   }
 
   /* ---- render table ---- */
-  async function loadProperties() {
+  function renderPagination(page, pages, total) {
+    const pagination = document.getElementById("dash-pagination");
+    if (!pagination) return;
+    if (pages <= 1) {
+      pagination.innerHTML = "";
+      return;
+    }
+
+    const start = total === 0 ? 0 : ((page - 1) * pageSize) + 1;
+    const end = Math.min(page * pageSize, total);
+    const buttons = [];
+    const windowSize = 3;
+    const startPage = Math.max(1, page - windowSize);
+    const endPage = Math.min(pages, page + windowSize);
+
+    buttons.push(`<button type="button" class="page-btn" data-page="${Math.max(1, page - 1)}" ${page === 1 ? "disabled" : ""}>Anterior</button>`);
+    if (startPage > 1) {
+      buttons.push(`<button type="button" class="page-btn" data-page="1">1</button>`);
+      if (startPage > 2) buttons.push(`<span class="page-ellipsis">...</span>`);
+    }
+    for (let i = startPage; i <= endPage; i++) {
+      buttons.push(`<button type="button" class="page-btn ${i === page ? "active" : ""}" data-page="${i}">${i}</button>`);
+    }
+    if (endPage < pages) {
+      if (endPage < pages - 1) buttons.push(`<span class="page-ellipsis">...</span>`);
+      buttons.push(`<button type="button" class="page-btn" data-page="${pages}">${pages}</button>`);
+    }
+    buttons.push(`<button type="button" class="page-btn" data-page="${Math.min(pages, page + 1)}" ${page === pages ? "disabled" : ""}>Próxima</button>`);
+
+    pagination.innerHTML = `
+      <div class="page-summary">${total === 0 ? "0 imóveis" : `${start}-${end} de ${total}`}</div>
+      <div class="page-actions">${buttons.join("")}</div>
+    `;
+
+    pagination.querySelectorAll("[data-page]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const pageNum = Number(btn.dataset.page) || 1;
+        loadProperties(pageNum);
+      });
+    });
+  }
+
+  async function loadProperties(page = currentPage) {
+    currentPage = page;
     const params = new URLSearchParams();
     const q = document.getElementById("filter-search").value.trim();
     const tipo = document.getElementById("filter-tipo").value;
     const finalidade = document.getElementById("filter-finalidade").value;
     const cidade = document.getElementById("filter-cidade").value;
+    params.set("page", String(page));
+    params.set("limit", String(pageSize));
     if (q) params.set("q", q);
     if (tipo) params.set("tipo", tipo);
     if (finalidade) params.set("finalidade", finalidade);
@@ -78,10 +125,14 @@
     const data = await res.json();
     const tbody = document.getElementById("dash-tbody");
     const empty = document.getElementById("dash-empty");
+    const total = Number(data.total) || 0;
+    const pages = Number(data.pages) || 1;
+    currentPage = Number(data.page) || page;
 
     if (!data.properties.length) {
       tbody.innerHTML = "";
       empty.style.display = "block";
+      renderPagination(1, 1, 0);
       return;
     }
     empty.style.display = "none";
@@ -115,6 +166,7 @@
 
     tbody.querySelectorAll(".btn-edit").forEach((b) => b.addEventListener("click", () => openEdit(b.dataset.id)));
     tbody.querySelectorAll(".btn-delete").forEach((b) => b.addEventListener("click", () => deleteProperty(b.dataset.id)));
+    renderPagination(currentPage, pages, total);
   }
 
   function esc(s) {
@@ -299,7 +351,17 @@
   loadProperties();
 
   document.querySelectorAll("#filter-search, #filter-tipo, #filter-finalidade, #filter-cidade").forEach((el) => {
-    el.addEventListener("change", loadProperties);
-    el.addEventListener("input", loadProperties);
+    el.addEventListener("change", () => loadProperties(1));
+    el.addEventListener("input", () => loadProperties(1));
   });
+
+  const searchInput = document.getElementById("filter-search");
+  const searchButton = document.getElementById("filter-search-btn");
+  searchInput?.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      loadProperties(1);
+    }
+  });
+  searchButton?.addEventListener("click", () => loadProperties(1));
 })();

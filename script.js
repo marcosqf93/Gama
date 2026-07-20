@@ -127,6 +127,7 @@ const q = document.getElementById("hero-q");
 const tipo = document.getElementById("hero-tipo");
 const cidade = document.getElementById("hero-cidade");
 const valor = document.getElementById("hero-valor");
+const heroSearchBtn = document.getElementById("hero-search-btn");
 const mobileFilterTrigger = document.getElementById("mobile-filter-trigger");
 const mobileFilterBackdrop = document.getElementById("mobile-filter-backdrop");
 const mobileFilterSheet = document.getElementById("mobile-filter-sheet");
@@ -471,10 +472,23 @@ function clearFilters() {
   render();
 }
 
+function applyHeroSearch() {
+  visibleCount = 12;
+  const total = render();
+  scrollToResultsIfAny(total);
+}
+
 [q, tipo, cidade, valor].forEach((el) => el.addEventListener("input", () => {
   visibleCount = 12;
   render();
 }));
+
+q?.addEventListener("keydown", (e) => {
+  if (e.key === "Enter") {
+    e.preventDefault();
+    applyHeroSearch();
+  }
+});
 
 document.querySelectorAll(".hero-search-pills .pill").forEach((btn) => {
   btn.addEventListener("click", () => {
@@ -502,11 +516,7 @@ document.querySelectorAll(".category-card").forEach((btn) => {
   });
 });
 
-document.getElementById("hero-search-btn")?.addEventListener("click", () => {
-  visibleCount = 12;
-  const total = render();
-  scrollToResultsIfAny(total);
-});
+heroSearchBtn?.addEventListener("click", applyHeroSearch);
 
 heroClearBtn?.addEventListener("click", clearFilters);
 

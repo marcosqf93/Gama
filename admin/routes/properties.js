@@ -40,23 +40,42 @@ router.post("/upload", auth, upload.array("imagens", 10), async (req, res) => {
 
 router.get("/", async (req, res) => {
   try {
-    const { page = 1, limit = 50, tipo, finalidade, cidade, ref } = req.query;
+    const { page = 1, limit = 50, tipo, finalidade, cidade, ref, q } = req.query;
+    const pageNum = Math.max(1, Number(page) || 1);
+    const limitNum = Math.max(1, Number(limit) || 50);
     const filter = {};
+    if (q) {
+      const query = String(q).trim();
+      const normalizedQuery = query.replace(/^0+/, "") || query;
+      const textRegex = { $regex: query, $options: "i" };
+      filter.$or = [
+        { referencia: query },
+        { referencia: normalizedQuery },
+        { bairro: textRegex },
+        { endereco: textRegex },
+        { cidade: textRegex },
+        { tipo: textRegex },
+      ];
+    }
     if (ref) {
       const normalizedRef = String(ref).trim();
       const strippedRef = normalizedRef.replace(/^0+(\d+)$/, "$1");
-      filter.$or = [{ referencia: normalizedRef }];
-      if (strippedRef !== normalizedRef) filter.$or.push({ referencia: strippedRef });
+      const refOr = [{ referencia: normalizedRef }];
+      if (strippedRef !== normalizedRef) refOr.push({ referencia: strippedRef });
+      filter.$and = filter.$and || [];
+      filter.$and.push({ $or: refOr });
     }
     if (tipo) filter.tipo = tipo;
     if (finalidade) filter.finalidade = finalidade;
     if (cidade) filter.cidade = { $regex: cidade, $options: "i" };
     const total = await Property.countDocuments(filter);
+    const pages = Math.max(1, Math.ceil(total / limitNum));
+    const currentPage = Math.min(pageNum, pages);
     const properties = await Property.find(filter)
       .sort({ createdAt: -1 })
-      .skip((page - 1) * limit)
-      .limit(Number(limit));
-    res.json({ properties, total, page: Number(page), pages: Math.ceil(total / limit) });
+      .skip((currentPage - 1) * limitNum)
+      .limit(limitNum);
+    res.json({ properties, total, page: currentPage, pages });
   } catch (err) {
     res.status(500).json({ error: "Erro ao listar imóveis." });
   }
