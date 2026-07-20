@@ -29,7 +29,7 @@ function normalizePropertyPayload(payload = {}) {
   };
 }
 
-router.post("/upload", auth, upload.array("imagens", 10), async (req, res) => {
+router.post("/upload", auth, upload.array("imagens", 20), async (req, res) => {
   try {
     const urls = req.files.map((f) => f.path);
     res.json({ urls });
