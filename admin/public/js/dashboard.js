@@ -165,7 +165,7 @@
             <td data-label="Finalidade">${esc(p.finalidade)}</td>
             <td data-label="Cidade">${esc(p.cidade)}</td>
             <td data-label="Valor">${p.valorVenda ? "R$ " + fmt(p.valorVenda) : ""}${p.valorVenda && p.valorLocacao ? " / " : ""}${p.valorLocacao ? "R$ " + fmt(p.valorLocacao) + "/mês" : ""}</td>
-            <td data-label="Imagens"><div class="thumb-list">${(p.imagens || []).slice(0, 4).map((i) => `<img src="${i}" alt="" />`).join("")}</div></td>
+            <td data-label="Imagens"><div class="thumb-list">${(p.imagens || []).slice(0, 4).map((i) => isVideoUrl(i) ? `<video class="thumb-item thumb-video" src="${i}" muted playsinline preload="metadata"></video>` : `<img class="thumb-item" src="${i}" alt="" />`).join("")}</div></td>
             <td data-label="Destaque">${p.destaque ? '<span class="status-pill status-pill-featured">Em destaque</span>' : '<span class="status-pill status-pill-muted">Normal</span>'}</td>
             <td data-label="Status">${p.ativo === false ? '<span class="status-pill status-pill-inactive">Inativo</span>' : '<span class="status-pill status-pill-active">Ativo</span>'}</td>
             <td data-label="Ações">

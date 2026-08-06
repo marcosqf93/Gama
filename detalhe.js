@@ -76,11 +76,11 @@ async function initDetail() {
   }
 
   function mediaHTML(url, alt, options = {}) {
-    const { width, height, sizes, loading = "lazy", fetchpriority, className = "", controls = false } = options;
+    const { width, height, sizes, loading = "lazy", fetchpriority, className = "", controls = false, id = "" } = options;
     if (isVideoUrl(url)) {
-      return `<video class="${className}" src="${url}" ${controls ? "controls" : "muted autoplay loop"} playsinline preload="metadata" ${width ? `width="${width}"` : ""} ${height ? `height="${height}"` : ""}></video>`;
+      return `<video${id ? ` id="${id}"` : ""} class="${className}" src="${url}" ${controls ? "controls" : "muted autoplay loop"} playsinline preload="metadata" ${width ? `width="${width}"` : ""} ${height ? `height="${height}"` : ""}></video>`;
     }
-    return `<img class="${className}" ${responsiveImageAttrs(url, alt, { width, height, sizes, loading, fetchpriority })} />`;
+    return `<img${id ? ` id="${id}"` : ""} class="${className}" ${responsiveImageAttrs(url, alt, { width, height, sizes, loading, fetchpriority })} />`;
   }
 
   function normalizeProperty(item, extra = {}) {
@@ -111,6 +111,29 @@ async function initDetail() {
       areaGourmet: Number(item.areaGourmet || 0),
       areaServico: Number(item.areaServico || 0),
       copa: Number(item.copa || 0),
+      piscina: Boolean(item.piscina ?? extra.piscina),
+      churrasqueira: Boolean(item.churrasqueira ?? extra.churrasqueira),
+      quintal: Boolean(item.quintal ?? extra.quintal),
+      jardim: Boolean(item.jardim ?? extra.jardim),
+      edicula: Boolean(item.edicula ?? extra.edicula),
+      lavanderia: Boolean(item.lavanderia ?? extra.lavanderia),
+      closet: Boolean(item.closet ?? extra.closet),
+      escritorio: Boolean(item.escritorio ?? extra.escritorio),
+      moveisPlanejados: Boolean(item.moveisPlanejados ?? extra.moveisPlanejados),
+      imovelMobiliado: Boolean(item.imovelMobiliado ?? extra.imovelMobiliado),
+      arCondicionado: Boolean(item.arCondicionado ?? extra.arCondicionado),
+      energiaSolar: Boolean(item.energiaSolar ?? extra.energiaSolar),
+      garagemCoberta: Boolean(item.garagemCoberta ?? extra.garagemCoberta),
+      portaoEletronico: Boolean(item.portaoEletronico ?? extra.portaoEletronico),
+      cercaEletrica: Boolean(item.cercaEletrica ?? extra.cercaEletrica),
+      acessibilidade: Boolean(item.acessibilidade ?? extra.acessibilidade),
+      aceitaFinanciamento: Boolean(item.aceitaFinanciamento ?? extra.aceitaFinanciamento),
+      aceitaFGTS: Boolean(item.aceitaFGTS ?? extra.aceitaFGTS),
+      aceitaProposta: Boolean(item.aceitaProposta ?? extra.aceitaProposta),
+      aceitaPermuta: Boolean(item.aceitaPermuta ?? extra.aceitaPermuta),
+      aceitaVeiculo: Boolean(item.aceitaVeiculo ?? extra.aceitaVeiculo),
+      documentacaoRegular: Boolean(item.documentacaoRegular ?? extra.documentacaoRegular),
+      escriturado: Boolean(item.escriturado ?? extra.escriturado),
       area: extra.area || item.area || (item.metragem ? `${item.metragem} m²` : ""),
       metragem: parseMeasure(item.metragem),
       mapaUrl: extra.mapaUrl || item.mapaUrl || "",
@@ -449,7 +472,7 @@ async function initDetail() {
       <div class="gallery-premium">
         <div class="gallery-layout">
           <div class="gallery-main" id="gallery-main">
-            ${mediaHTML(fotos[0], `Imagem 1 do imóvel ${imovel.referencia}`, { width: 1200, height: 800, sizes: "(max-width: 768px) 100vw, 68vw", loading: "eager", fetchpriority: "high", className: "gallery-main-img", controls: true })}
+            ${mediaHTML(fotos[0], `Imagem 1 do imóvel ${imovel.referencia}`, { id: "gallery-main-img", width: 1200, height: 800, sizes: "(max-width: 768px) 100vw, 68vw", loading: "eager", fetchpriority: "high", className: "gallery-main-img", controls: true })}
             <button type="button" class="gallery-open-btn" id="gallery-open-btn" aria-label="Abrir foto em tela cheia">Ampliar</button>
             <div class="gallery-counter"><span id="gallery-idx">1</span> / ${fotos.length} fotos</div>
             ${fotos.length > 1 ? '<button class="slide-btn prev" id="prev-photo" aria-label="Foto anterior">\u2039</button><button class="slide-btn next" id="next-photo" aria-label="Próxima foto">\u203A</button>' : ''}
