@@ -37,7 +37,7 @@
 
 ## Login
 
-- Email: `quintana.mqf@gmail.com`
+- Email: `geraldogamaimv@gmail.com`
 - Senha: `admin`
 
 ## Esqueci minha senha
@@ -56,8 +56,9 @@ O link de redefinição aparece no console do servidor (modo debug). Em produç�
    - `CLOUDINARY_CLOUD_NAME`
    - `CLOUDINARY_API_KEY`
    - `CLOUDINARY_API_SECRET`
-   - `BASE_URL` (URL do seu site no Render, ex: https://seu-admin.onrender.com)
-   - `ADMIN_EMAIL=quintana.mqf@gmail.com`
-   - `ADMIN_PASSWORD=admin`
-   - `ADMIN_NAME=Geraldo Gama`
-6. Deploy!
+    - `BASE_URL` (URL do seu site no Render, ex: https://seu-admin.onrender.com)
+    - `ADMIN_EMAIL=geraldogamaimv@gmail.com`
+    - `ADMIN_PASSWORD=admin`
+    - `ADMIN_NAME=Geraldo Gama`
+    - `SENDGRID_FROM=geraldogamaimv@gmail.com`
+ 6. Deploy!

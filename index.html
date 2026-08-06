@@ -3,14 +3,15 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Imobiliária Geraldo Gama | Aquidauana, Anastácio e MS</title>
-    <meta name="description" content="Imobiliária em Aquidauana e Anastácio MS. Venda, locação e aluguel de casas, residências, comércio, terrenos, loteamentos, chácaras e fazendas em Camisão, Piraputanga e região." />
-    <meta name="keywords" content="imobiliária Aquidauana, imobiliária Anastácio, venda de casas Aquidauana, aluguel Aquidauana, terrenos Aquidauana, loteamento Aquidauana, chácaras MS, fazendas MS, imóveis comerciais Aquidauana, Geraldo Gama" />
+    <title>Imobiliária Geraldo Gama | Imóveis em Aquidauana e Anastácio</title>
+    <meta name="description" content="Casas, terrenos, chácaras, fazendas e imóveis comerciais para comprar ou alugar em Aquidauana, Anastácio e região." />
+    <meta name="keywords" content="corretor de imóveis, imobiliária Aquidauana, imobiliária Anastácio, aluguel de casas, casa para alugar, aluguel Aquidauana, locação de imóveis, venda de casas Aquidauana, terrenos Aquidauana, chácaras MS, fazendas MS, imóveis comerciais Aquidauana" />
     <meta name="author" content="Imobiliária Geraldo Gama" />
+    <meta name="robots" content="index,follow,max-image-preview:large" />
     <meta name="geo.region" content="BR-MS" />
     <meta name="geo.placename" content="Aquidauana" />
-    <meta property="og:title" content="Imobiliária Geraldo Gama | Aquidauana, Anastácio e MS" />
-    <meta property="og:description" content="Venda, locação e aluguel de imóveis em Aquidauana, Anastácio, Camisão, Piraputanga e região MS. Casas, terrenos, chácaras, fazendas e comércio." />
+    <meta property="og:title" content="Corretor de imóveis em Aquidauana e Anastácio | Aluguel, venda e locação" />
+    <meta property="og:description" content="Casas para alugar, aluguel de imóveis, venda e locação em Aquidauana, Anastácio, Camisão, Piraputanga e região MS." />
     <meta property="og:locale" content="pt_BR" />
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://geraldogamaimv.com.br" />
@@ -90,46 +91,127 @@
       rel="stylesheet"
     />
     <script src="/analytics.js" defer></script>
-    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="styles.css?v=20260728-1" />
   </head>
   <body>
     <div id="site-header"></div>
 
     <section class="hero parallax" id="home">
       <div class="hero-media" aria-hidden="true"></div>
-      <picture class="hero-picture" aria-hidden="true">
-        <img src="https://lh3.googleusercontent.com/gps-cs-s/APNQkAEcw9urbZnE45mjWAKOVCR3nNeAaH7wBAjobHuXhFOWt1ztesIdbj964A4WF-Mz7MZqpEXJ0tyvQ8-4oqvesn-c8yaES9kZE9BMyiqRQ2V8oHdm_lTliL1_57ul7SvKJrSHNqk1=s680-w680-h510-rw" alt="Fundo da imobiliária" />
-      </picture>
+      <img class="hero-overlay-art" src="https://res.cloudinary.com/dqq4qonkb/image/upload/v1784896817/Design_sem_nome_outzc7.svg" alt="" aria-hidden="true" />
       <div class="hero-overlay"></div>
+      <div class="hero-overlay-top" aria-hidden="true"></div>
       <div class="container hero-content reveal">
-        <h1>Imóveis à venda e para alugar em Aquidauana, Anastácio e Região.</h1>
-        <p><span id="word-rotator" class="word-highlight">Casas</span> com atendimento especializado em MS.</p>
-        <div class="hero-actions">
-          <a href="#imoveis" class="btn btn-primary">Buscar imóvel agora</a>
-          <a href="https://wa.me/5567998126525" target="_blank" rel="noopener" class="btn btn-ghost">Falar no WhatsApp</a>
-          <a href="#cta-anunciar" class="btn btn-ghost">Anunciar meu imóvel</a>
-        </div>
-        <div class="hero-search">
-          <div class="hero-search-pills">
-            <button class="pill active" data-fin="todos">Todos</button>
-            <button class="pill" data-fin="aluguel">Alugar</button>
-            <button class="pill" data-fin="venda">Comprar</button>
+        <h1><span>Da cidade ao campo, temos o&nbsp;</span><span>imóvel ideal para você&nbsp;</span><span>comprar, vender ou alugar.</span></h1>
+        <p>Casas, terrenos, fazendas e imóveis comerciais com atendimento especializado em MS.</p>
+          <div class="hero-control-panel">
+            <div class="hero-search">
+              <div class="hero-search-pills">
+                <button type="button" class="pill active" data-fin="venda">Comprar</button>
+                <button type="button" class="pill" data-fin="aluguel">Alugar</button>
+              </div>
+              <div class="hero-search-main-grid">
+                <div class="hero-search-field">
+                  <span class="hero-search-label">Tipo</span>
+                  <select id="hero-tipo"><option value="">Apartamento</option></select>
+                </div>
+                <div class="hero-search-field">
+                  <span class="hero-search-label">Cidade</span>
+                  <select id="hero-cidade"><option value="">Blumenau</option></select>
+                </div>
+                <div class="hero-search-field">
+                  <span class="hero-search-label">Valor</span>
+                  <select id="hero-valor" class="hero-valor-select"><option value="">Qualquer valor</option><option value="0-100000">Até R$ 100 mil</option><option value="100000-300000">R$ 100 mil - R$ 300 mil</option><option value="300000-500000">R$ 300 mil - R$ 500 mil</option><option value="500000-1000000">R$ 500 mil - R$ 1 mi</option><option value="1000000+">Acima de R$ 1 mi</option></select>
+                  <button type="button" class="hero-valor-trigger" id="hero-valor-trigger">Qualquer valor</button>
+                  <div class="hero-valor-panel" id="hero-valor-panel" aria-hidden="true">
+                    <div class="hero-valor-panel-head">
+                      <strong>Preço</strong>
+                      <span id="hero-valor-range-label">R$ 6.000 - R$ 20.000.000</span>
+                    </div>
+                    <div class="hero-valor-slider-wrap">
+                      <input type="range" id="hero-valor-min-range" min="6000" max="20000000" step="1000" value="6000" />
+                      <input type="range" id="hero-valor-max-range" min="6000" max="20000000" step="1000" value="20000000" />
+                    </div>
+                    <div class="hero-valor-inputs">
+                      <label>
+                        <span>Preço mínimo</span>
+                        <input type="number" id="hero-valor-min" min="6000" max="20000000" step="1000" value="6000" />
+                      </label>
+                      <span class="hero-valor-sep">–</span>
+                      <label>
+                        <span>Preço máximo</span>
+                        <input type="number" id="hero-valor-max" min="6000" max="20000000" step="1000" value="20000000" />
+                      </label>
+                    </div>
+                    <button type="button" class="btn btn-primary hero-valor-apply" id="hero-valor-apply">Aplicar</button>
+                  </div>
+                </div>
+                <button type="button" class="hero-search-icon-btn" id="hero-search-btn" aria-label="Buscar imóveis">
+                  <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                    <circle cx="11" cy="11" r="7"></circle>
+                    <path d="m16.5 16.5 4 4" stroke-linecap="round"></path>
+                  </svg>
+                </button>
+              </div>
+              <div class="hero-search-row">
+                <input type="text" id="hero-q" placeholder="Buscar por rua, bairro ou referência..." />
+              </div>
+              <div class="hero-filters">
+              </div>
+              <div class="hero-search-footer">
+                <button type="button" class="hero-footer-link mobile-filter-trigger" id="mobile-filter-trigger" aria-controls="mobile-filter-sheet" aria-expanded="false">
+                  <svg class="mobile-filter-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                    <path d="M4 7h16M7 12h10M10 17h4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                  </svg>
+                  <span id="mobile-filter-trigger-label">Filtros avançados</span>
+                </button>
+                <span class="hero-search-footer-sep" aria-hidden="true">·</span>
+                <button type="button" class="hero-footer-link code-search-trigger" id="code-search-trigger">
+                  <svg class="mobile-filter-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                    <path d="M4 7h4M4 12h7M4 17h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                  </svg>
+                  <span>Buscar por código</span>
+                </button>
+                <button type="button" class="hero-footer-link hero-clear-btn" id="hero-clear-btn" aria-label="Limpar filtros">
+                  <svg class="mobile-filter-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                    <path d="M6 6l12 12M18 6 6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                  </svg>
+                  <span>Limpar filtros</span>
+                </button>
+              </div>
+            <p class="hero-search-status" id="hero-search-status" aria-live="polite"></p>
+            <aside class="mobile-filter-sheet" id="mobile-filter-sheet" aria-hidden="true" aria-label="Filtros avançados">
+              <div class="mobile-filter-code-only" id="mobile-filter-code-only">
+                <label>
+                  <span>Código de referência</span>
+                  <input id="mobile-filter-referencia" type="text" inputmode="numeric" placeholder="Ex.: 1234" />
+                </label>
+              </div>
+              <div class="desktop-filter-cards" aria-label="Filtros rápidos">
+                <div class="desktop-filter-card">
+                  <span class="desktop-filter-card-label">Quartos</span>
+                  <div class="desktop-filter-options" data-filter-group="quartos"></div>
+                </div>
+                <div class="desktop-filter-card">
+                  <span class="desktop-filter-card-label">Suítes</span>
+                  <div class="desktop-filter-options" data-filter-group="suites"></div>
+                </div>
+                <div class="desktop-filter-card">
+                  <span class="desktop-filter-card-label">Vagas</span>
+                  <div class="desktop-filter-options" data-filter-group="vagas"></div>
+                </div>
+              </div>
+              <div class="mobile-filter-sheet-actions">
+                <button type="button" class="btn btn-ghost mobile-filter-clear" id="mobile-filter-clear" aria-label="Limpar filtros">Limpar</button>
+                <button type="button" class="btn btn-primary" id="mobile-filter-apply">Aplicar filtros</button>
+              </div>
+            </aside>
+            </div>
           </div>
-          <div class="hero-search-row">
-            <input type="text" id="hero-q" placeholder="Buscar por rua, bairro ou referência..." />
-          </div>
-          <div class="hero-filters">
-            <select id="hero-tipo"><option value="">Tipo: Todos</option></select>
-            <select id="hero-cidade"><option value="">Cidade: Todas</option></select>
-            <select id="hero-valor"><option value="">Valor: Todos</option><option value="0-100000">Até R$ 100 mil</option><option value="100000-300000">R$ 100 mil - R$ 300 mil</option><option value="300000-500000">R$ 300 mil - R$ 500 mil</option><option value="500000-1000000">R$ 500 mil - R$ 1 mi</option><option value="1000000+">Acima de R$ 1 mi</option></select>
-            <button class="btn btn-primary" id="hero-search-btn">Buscar</button>
-            <button class="btn btn-ghost hero-clear-btn" id="hero-clear-btn" type="button" aria-label="Limpar filtros">Limpar</button>
-          </div>
-          <p class="hero-search-status" id="hero-search-status" aria-live="polite"></p>
-        </div>
-        <button type="button" class="btn btn-primary mobile-filter-trigger" id="mobile-filter-trigger">Filtrar imóveis</button>
       </div>
     </section>
+
+    <div class="mobile-filter-backdrop" id="mobile-filter-backdrop" aria-hidden="true"></div>
 
     <section class="trust-strip reveal reveal-fade" id="prova-social">
       <div class="container">
@@ -315,19 +397,19 @@
     </section>
 
       <section class="section institutional reveal reveal-fade" id="sobre">
-        <div class="container split">
+          <div class="container split">
           <div class="reveal reveal-fade about-hero-home about-hero-home-bg">
             <p class="eyebrow">Quem Somos</p>
             <h2 class="about-home-title"><img src="https://res.cloudinary.com/dqq4qonkb/image/upload/v1779394470/images_ikvtoi.jpg" alt="Geraldo Gama" /> <span>Imobiliária Geraldo Gama</span></h2>
             <p>
-              Há 10 anos, conectamos pessoas a imóveis com transparência, segurança jurídica e conhecimento da
-              região de Aquidauana e do Portal do Pantanal.
+              Há 10 anos, conectamos pessoas a imóveis com transparência, segurança jurídica e<br class="desktop-break" />
+              conhecimento da região de Aquidauana e do Portal do Pantanal.
             </p>
             <p>
-              Nossa atuação vai de imóveis urbanos a áreas rurais e comerciais, sempre com atendimento personalizado e
-              foco em resultados.
+              Nossa atuação vai de imóveis urbanos a áreas rurais e comerciais,<br class="desktop-break" />
+              sempre com atendimento personalizado e foco em resultados.
             </p>
-            <a class="btn btn-primary" href="/about.html">Conheça nossa história</a>
+            <a class="btn btn-primary about-hero-art-btn" href="/about">Conheça nossa história</a>
           </div>
           <div class="badge-grid reveal reveal-zoom">
             <article><strong>CRECI</strong><span>9225-J</span></article>
@@ -360,7 +442,7 @@
               </label>
               <div class="dynamic-fields" id="dynamic-fields"></div>
               <label>Mensagem<textarea name="mensagem" rows="3" placeholder="Conte mais sobre o que procura (opcional)"></textarea></label>
-              <button type="submit" class="btn btn-primary" id="form-submit">Quero anunciar meu imóvel</button>
+              <button type="submit" class="btn btn-primary" id="form-submit">Falar com a imobiliária</button>
               <p class="form-feedback" id="form-feedback"></p>
             </form>
             <aside class="contact-proof">
@@ -397,7 +479,7 @@
 
     <a class="whatsapp-float" href="https://wa.me/5567998126525?text=Ol%C3%A1!%20Quero%20agendar%20uma%20visita." target="_blank" rel="noopener" aria-label="WhatsApp">
       <svg viewBox="0 0 24 24" width="24" height="24"><path d="M21 11.5a8.5 8.5 0 0 1-8.5 8.5 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.5 8.5 0 0 1-7.6-11.5A8.5 8.5 0 0 1 12.5 3h.5a8.5 8.5 0 0 1 8 8.5v.5z" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>
-      <span class="whatsapp-label">Fale agora com um corretor</span>
+      <span class="whatsapp-label">Fale agora com Geraldo</span>
     </a>
 
     <div class="mobile-filter-backdrop" id="mobile-filter-backdrop"></div>

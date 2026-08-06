@@ -44,6 +44,10 @@ async function initDetail() {
     return typeof url === "string" && /res\.cloudinary\.com/.test(url) && /\/upload\//.test(url);
   }
 
+  function isVideoUrl(url) {
+    return typeof url === "string" && (/\/video\//i.test(url) || /\.(mp4|mov|webm|ogv|avi|mkv)(\?|#|$)/i.test(url));
+  }
+
   function cloudinaryVariant(url, width, height) {
     if (!isCloudinaryUrl(url)) return url;
     return url.replace("/upload/", `/upload/f_auto,q_auto,w_${width},h_${height},c_fill/`);
@@ -69,6 +73,14 @@ async function initDetail() {
     if (loading) parts.push(`loading="${loading}"`);
     if (fetchpriority) parts.push(`fetchpriority="${fetchpriority}"`);
     return parts.join(" ");
+  }
+
+  function mediaHTML(url, alt, options = {}) {
+    const { width, height, sizes, loading = "lazy", fetchpriority, className = "", controls = false } = options;
+    if (isVideoUrl(url)) {
+      return `<video class="${className}" src="${url}" ${controls ? "controls" : "muted autoplay loop"} playsinline preload="metadata" ${width ? `width="${width}"` : ""} ${height ? `height="${height}"` : ""}></video>`;
+    }
+    return `<img class="${className}" ${responsiveImageAttrs(url, alt, { width, height, sizes, loading, fetchpriority })} />`;
   }
 
   function normalizeProperty(item, extra = {}) {
@@ -161,6 +173,22 @@ async function initDetail() {
     return `<a class="card-map-pin card-map-link" href="${href}" target="_blank" rel="noopener" aria-label="Abrir mapa do imóvel">${icon}</a>`;
   }
 
+  function mapEmbedSrc(item) {
+    const href = String(item.mapaUrl || "").trim();
+    const query = encodeURIComponent(`${item.endereco || ""}, ${item.cidade || ""}`.trim());
+    if (!href) {
+      return `https://www.google.com/maps?q=${query}&output=embed`;
+    }
+
+    if (/output=embed/i.test(href)) return href;
+
+    if (/google\.com\/maps/i.test(href) || /maps\.app\.goo\.gl/i.test(href) || /goo\.gl\/maps/i.test(href)) {
+      return `https://www.google.com/maps?q=${query}&output=embed`;
+    }
+
+    return "";
+  }
+
   function featureIcon(type) {
     const icons = {
       suites: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10h18v8H3z"/><path d="M7 10V7a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v3"/></svg>',
@@ -202,11 +230,14 @@ async function initDetail() {
     pushFeature("dormitorios", "Dormitório", item.dormitorios);
     pushFeature("banheiros", "Banheiro", item.banheiros);
     pushFeature("salas", "Sala", item.salas);
-    pushFeature("areaGourmet", "Área gourmet", item.areaGourmet);
     pushFeature("areaServico", "Área de serviço", item.areaServico);
     pushFeature("copa", "Copa", item.copa);
-    pushFeature("varandas", "Varanda", item.varandas);
     return cards;
+  }
+
+  function detailMediaList(item) {
+    const list = Array.isArray(item.fotos) && item.fotos.length ? item.fotos : (item.imagem ? [item.imagem] : []);
+    return list.length ? list : [];
   }
 
   function rawPriceToText(value) {
@@ -221,10 +252,44 @@ async function initDetail() {
       { key: "banheiros", label: "Banheiro", value: item.banheiros },
       { key: "salas", label: "Sala", value: item.salas },
       { key: "cozinhas", label: "Cozinha", value: item.cozinhas },
-      { key: "areaGourmet", label: "Área gourmet", value: item.areaGourmet },
       { key: "areaServico", label: "Área de serviço", value: item.areaServico },
       { key: "copa", label: "Copa", value: item.copa },
     ].filter((entry) => Number(entry.value) > 0);
+  }
+
+  function booleanFeatureEntries(item) {
+    return [
+      { label: "Piscina", value: item.piscina },
+      { label: "Área gourmet", value: item.areaGourmet },
+      { label: "Churrasqueira", value: item.churrasqueira },
+      { label: "Varanda", value: item.varandas },
+      { label: "Quintal", value: item.quintal },
+      { label: "Jardim", value: item.jardim },
+      { label: "Edícula", value: item.edicula },
+      { label: "Lavanderia", value: item.lavanderia },
+      { label: "Closet", value: item.closet },
+      { label: "Escritório", value: item.escritorio },
+      { label: "Móveis planejados", value: item.moveisPlanejados },
+      { label: "Imóvel mobiliado", value: item.imovelMobiliado },
+      { label: "Ar-condicionado", value: item.arCondicionado },
+      { label: "Energia solar", value: item.energiaSolar },
+      { label: "Garagem coberta", value: item.garagemCoberta },
+      { label: "Portão eletrônico", value: item.portaoEletronico },
+      { label: "Cerca elétrica", value: item.cercaEletrica },
+      { label: "Acessibilidade", value: item.acessibilidade },
+    ].filter((entry) => Boolean(entry.value));
+  }
+
+  function commercialFeatureEntries(item) {
+    return [
+      { label: "Aceita financiamento", value: item.aceitaFinanciamento },
+      { label: "Aceita FGTS", value: item.aceitaFGTS },
+      { label: "Aceita proposta", value: item.aceitaProposta },
+      { label: "Aceita permuta", value: item.aceitaPermuta },
+      { label: "Aceita veículo", value: item.aceitaVeiculo },
+      { label: "Documentação regular", value: item.documentacaoRegular },
+      { label: "Imóvel escriturado", value: item.escriturado },
+    ].filter((entry) => Boolean(entry.value));
   }
 
   function renderFeatureIcons(item, limit = 4) {
@@ -289,13 +354,15 @@ async function initDetail() {
   }
 
   try {
-    const fotos = Array.isArray(imovel.fotos) && imovel.fotos.length ? imovel.fotos : [imovel.imagem];
+    const fotos = detailMediaList(imovel);
     const acao = acaoLabel(imovel.finalidade);
     const preco = rawPriceToText(imovel.valorVenda) || rawPriceToText(imovel.valorLocacao)
       || (imovel.venda !== "R$ 0,00" && imovel.venda !== "Consultar" ? imovel.venda : "")
       || (imovel.locacao !== "R$ 0,00" && imovel.locacao !== "Consultar" ? imovel.locacao : "")
       || null;
     const highlightCards = detailCards(imovel, acao, preco);
+    const amenities = booleanFeatureEntries(imovel);
+    const commercialConditions = commercialFeatureEntries(imovel);
 
     const finalidadeLabel = imovel.finalidade === "venda" ? "à venda" : imovel.finalidade === "aluguel" ? "para locação" : "à venda e locação";
     const bedrooms = Number(imovel.dormitorios) || 0;
@@ -374,17 +441,21 @@ async function initDetail() {
 
   box.innerHTML = `
     <article class="detail-wrap reveal show">
+      <button type="button" class="detail-back-btn" id="detail-back-btn" aria-label="Voltar para a página anterior">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
+        <span>Voltar</span>
+      </button>
       <div class="detail-badge-destaque">Em destaque</div>
       <div class="gallery-premium">
         <div class="gallery-layout">
           <div class="gallery-main" id="gallery-main">
-            <img ${responsiveImageAttrs(fotos[0], `Imagem 1 do imóvel ${imovel.referencia}`, { width: 1200, height: 800, sizes: "(max-width: 768px) 100vw, 68vw", loading: "eager", fetchpriority: "high" })} class="gallery-main-img" id="gallery-main-img" />
+            ${mediaHTML(fotos[0], `Imagem 1 do imóvel ${imovel.referencia}`, { width: 1200, height: 800, sizes: "(max-width: 768px) 100vw, 68vw", loading: "eager", fetchpriority: "high", className: "gallery-main-img", controls: true })}
             <button type="button" class="gallery-open-btn" id="gallery-open-btn" aria-label="Abrir foto em tela cheia">Ampliar</button>
             <div class="gallery-counter"><span id="gallery-idx">1</span> / ${fotos.length} fotos</div>
             ${fotos.length > 1 ? '<button class="slide-btn prev" id="prev-photo" aria-label="Foto anterior">\u2039</button><button class="slide-btn next" id="next-photo" aria-label="Próxima foto">\u203A</button>' : ''}
           </div>
           <div class="gallery-thumbs gallery-thumbs-side" id="gallery-thumbs">
-            ${fotos.slice(0, 4).map((f, i) => `<button class="gallery-thumb ${i === 0 ? 'active' : ''}" data-index="${i}" aria-label="Foto ${i + 1}"><img ${responsiveImageAttrs(f, `Miniatura ${i + 1}`, { width: 200, height: 150, loading: "lazy" })} /></button>`).join('')}
+            ${fotos.slice(0, 4).map((f, i) => `<button class="gallery-thumb ${i === 0 ? 'active' : ''}" data-index="${i}" aria-label="Foto ${i + 1}">${mediaHTML(f, `Miniatura ${i + 1}`, { width: 200, height: 150, loading: "lazy", className: "gallery-thumb-media" })}</button>`).join('')}
           </div>
         </div>
         ${fotos.length > 1 ? `
@@ -396,7 +467,7 @@ async function initDetail() {
           <div class="gallery-thumbs gallery-thumbs-bottom" id="gallery-thumbs-bottom">
             ${fotos.slice(4).map((f, idx) => {
               const i = idx + 4;
-              return `<button class="gallery-thumb" data-index="${i}" aria-label="Foto ${i + 1}"><img ${responsiveImageAttrs(f, `Miniatura ${i + 1}`, { width: 200, height: 150, loading: "lazy" })} /></button>`;
+              return `<button class="gallery-thumb" data-index="${i}" aria-label="Foto ${i + 1}">${mediaHTML(f, `Miniatura ${i + 1}`, { width: 200, height: 150, loading: "lazy", className: "gallery-thumb-media" })}</button>`;
             }).join('')}
           </div>
         ` : ''}
@@ -416,7 +487,7 @@ async function initDetail() {
       </div>
       <div class="detail-content">
         <div class="detail-grid detail-grid-premium">
-          ${highlightCards.map((item) => item.type === "text" ? `<div class="detail-card detail-card-text"><span>${item.label}</span><strong>${item.value}</strong></div>` : `<div class="detail-card detail-card-feature" title="${item.label}: ${item.value}"><div class="detail-card-head"><span class="detail-card-icon">${featureIcon(item.key)}</span><span class="detail-card-label">${item.label}</span></div><span class="detail-card-value">${item.value}</span></div>`).join("")}
+          ${highlightCards.map((item) => item.type === "text" ? `<div class="detail-card detail-card-text"><span>${item.label}</span><strong>${item.value}</strong></div>` : `<div class="detail-card detail-card-feature" title="${item.label}: ${item.value}"><div class="detail-card-head"><span class="detail-card-icon">${featureIcon(item.key)}</span><span class="detail-card-label">${item.label}</span><strong class="detail-card-value">${item.value}</strong></div></div>`).join("")}
         </div>
 
         <p class="descricao-imovel">
@@ -424,12 +495,33 @@ async function initDetail() {
           Para condições comerciais atualizadas e visita presencial, fale direto com a equipe da Imobiliária Geraldo Gama.
         </p>
 
+        ${(amenities.length || commercialConditions.length) ? `
+          <div class="detail-feature-lists">
+            ${amenities.length ? `
+              <section class="detail-feature-list">
+                <h3>Características</h3>
+                <ul>
+                  ${amenities.map((entry) => `<li><span class="detail-check">✓</span><span>${entry.label}</span></li>`).join("")}
+                </ul>
+              </section>
+            ` : ''}
+            ${commercialConditions.length ? `
+              <section class="detail-feature-list">
+                <h3>Condições comerciais</h3>
+                <ul>
+                  ${commercialConditions.map((entry) => `<li><span class="detail-check">✓</span><span>${entry.label}</span></li>`).join("")}
+                </ul>
+              </section>
+            ` : ''}
+          </div>
+        ` : ''}
+
         <div class="detail-map-block">
           <p class="detail-map-title">${imovel.endereco}</p>
           <div class="detail-map-frame">
-            ${imovel.mapaUrl
-              ? `<a href="${imovel.mapaUrl}" target="_blank" rel="noopener">Abrir mapa</a>`
-              : `<iframe loading="lazy" referrerpolicy="no-referrer-when-downgrade" src="https://www.google.com/maps?q=${encodeURIComponent(`${imovel.endereco}, ${imovel.cidade}`)}&output=embed" title="Mapa do imóvel"></iframe>`}
+            ${mapEmbedSrc(imovel)
+              ? `<iframe loading="lazy" referrerpolicy="no-referrer-when-downgrade" src="${mapEmbedSrc(imovel)}" title="Mapa do imóvel"></iframe>`
+              : `<a href="${imovel.mapaUrl}" target="_blank" rel="noopener">Abrir mapa</a>`}
           </div>
         </div>
 
@@ -465,7 +557,7 @@ async function initDetail() {
             <article class="card reveal show card-similar">
               <div class="thumb-wrap">
                 ${mapPinHTML(item)}
-                <img ${responsiveImageAttrs(foto, `Imóvel ${item.referencia}`, { width: 800, height: 600, sizes: "(max-width: 768px) 100vw, 33vw", loading: "lazy" })} />
+                ${mediaHTML(foto, `Imóvel ${item.referencia}`, { width: 800, height: 600, sizes: "(max-width: 768px) 100vw, 33vw", loading: "lazy", className: "card-media" })}
               </div>
               <div class="card-body">
                 <div class="meta"><span class="tag">Ref ${item.referencia || item._id}</span><span class="tag">${item.tipo}</span><span class="tag">${item.finalidade}</span></div>
@@ -497,6 +589,18 @@ async function initDetail() {
   let photoIndex = 0;
   let modalOpen = false;
   let zoomed = false;
+
+  const backBtn = document.getElementById("detail-back-btn");
+  if (backBtn) {
+    backBtn.addEventListener("click", () => {
+      const sameOriginReferrer = document.referrer && document.referrer.startsWith(window.location.origin);
+      if (sameOriginReferrer && window.history.length > 1) {
+        window.history.back();
+        return;
+      }
+      window.location.href = "/#imoveis";
+    });
+  }
   const mainImg = document.getElementById("gallery-main-img");
   const counterEl = document.getElementById("gallery-idx");
   const thumbs = document.querySelectorAll(".gallery-thumb");

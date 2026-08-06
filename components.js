@@ -80,8 +80,12 @@ function renderLayout() {
             </ul>
           </section>
         </div>
-        <div class="footer-signature">
-          Site BETA desenvolvido por <strong>MARCOS</strong>
+        <div class="footer-signature-wrap">
+          <div class="footer-copyright">Copyright 2026 Imobiliária Geraldo Gama.</div>
+          <a class="footer-signature" href="https://wa.me/5567999638295" target="_blank" rel="noopener" aria-label="Abrir contato do desenvolvedor no WhatsApp">
+            <span class="footer-signature-label">Desenvolvido por</span>
+            <img class="footer-dev-logo" src="https://i.postimg.cc/ZKhKH9RF/mf-dev-studio-horizontal-transparente.png" alt="MF Dev Studio" />
+          </a>
         </div>
       </footer>
     `;
@@ -90,10 +94,62 @@ function renderLayout() {
   const toggle = document.getElementById("menu-toggle");
   const nav = document.getElementById("main-nav");
   if (toggle && nav) {
+    const topbarWrap = document.querySelector(".topbar-wrap");
+    const brandLink = document.querySelector(".brand-link");
+    const brandWordmark = document.querySelector(".brand-wordmark");
+    const socialMini = document.querySelector(".social-mini");
+
+    const syncHeaderMode = () => {
+      const tabletMenu = window.matchMedia && window.matchMedia("(min-width: 760px) and (max-width: 1046px)").matches;
+      if (tabletMenu) {
+        topbarWrap?.style.setProperty("display", "grid", "important");
+        topbarWrap?.style.setProperty("grid-auto-flow", "column", "important");
+        topbarWrap?.style.setProperty("grid-auto-columns", "max-content", "important");
+        topbarWrap?.style.setProperty("align-items", "center", "important");
+        topbarWrap?.style.setProperty("column-gap", ".65rem", "important");
+        brandLink?.style.setProperty("display", "inline-flex", "important");
+        brandLink?.style.setProperty("visibility", "visible", "important");
+        brandLink?.style.setProperty("flex-shrink", "0", "important");
+        brandWordmark?.style.setProperty("display", "inline-flex", "important");
+        brandWordmark?.style.setProperty("visibility", "visible", "important");
+        brandWordmark?.style.setProperty("flex-shrink", "0", "important");
+        socialMini?.style.setProperty("display", "flex", "important");
+        socialMini?.style.setProperty("visibility", "visible", "important");
+        socialMini?.style.setProperty("flex-shrink", "0", "important");
+        nav.classList.remove("open");
+        nav.style.display = "none";
+        toggle.style.display = "inline-flex";
+        toggle.style.setProperty("flex-shrink", "0", "important");
+        toggle.setAttribute("aria-expanded", "false");
+      } else {
+        topbarWrap?.style.removeProperty("display");
+        topbarWrap?.style.removeProperty("grid-auto-flow");
+        topbarWrap?.style.removeProperty("grid-auto-columns");
+        topbarWrap?.style.removeProperty("align-items");
+        topbarWrap?.style.removeProperty("column-gap");
+        brandLink?.style.removeProperty("display");
+        brandLink?.style.removeProperty("visibility");
+        brandLink?.style.removeProperty("flex-shrink");
+        brandWordmark?.style.removeProperty("display");
+        brandWordmark?.style.removeProperty("visibility");
+        brandWordmark?.style.removeProperty("flex-shrink");
+        socialMini?.style.removeProperty("display");
+        socialMini?.style.removeProperty("visibility");
+        socialMini?.style.removeProperty("flex-shrink");
+        nav.style.display = "";
+        toggle.style.display = "";
+        toggle.style.removeProperty("flex-shrink");
+      }
+    };
+
     toggle.addEventListener("click", () => {
       const open = nav.classList.toggle("open");
       toggle.setAttribute("aria-expanded", String(open));
+      if (open) nav.style.display = "flex";
     });
+
+    syncHeaderMode();
+    window.addEventListener("resize", syncHeaderMode);
   }
 }
 

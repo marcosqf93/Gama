@@ -43,6 +43,7 @@
       <select id="filter-tipo"><option value="">Todos os tipos</option></select>
       <select id="filter-finalidade"><option value="">Todas finalidades</option><option value="venda">Venda</option><option value="aluguel">Aluguel</option><option value="ambos">Ambos</option></select>
       <select id="filter-cidade"><option value="">Todas cidades</option></select>
+      <select id="filter-status"><option value="">Todos os status</option><option value="true">Ativos</option><option value="false">Inativos</option></select>
     </div>
 
     <div class="dash-table-wrap">
@@ -98,15 +99,48 @@
             </div>
             <div class="form-row">
               <div class="field"><label>Banheiros</label><input name="banheiros" type="number" min="0" /></div>
-              <div class="field"><label>Varandas</label><input name="varandas" type="number" min="0" /></div>
+              <div class="field field-check"><label><input name="varandas" type="checkbox" /> Varanda</label></div>
               <div class="field"><label>Garagens</label><input name="garagens" type="number" min="0" /></div>
-              <div class="field"><label>Área Gourmet</label><input name="areaGourmet" type="number" min="0" /></div>
+              <div class="field field-check"><label><input name="areaGourmet" type="checkbox" /> Área gourmet</label></div>
             </div>
             <div class="form-row">
               <div class="field"><label>Área de Serviço</label><input name="areaServico" type="number" min="0" /></div>
               <div class="field"><label>Copa</label><input name="copa" type="number" min="0" /></div>
                <div class="field"><label>Metragem (m²)</label><input name="metragem" type="number" min="0" step="any" inputmode="decimal" /></div>
               <div class="field"></div>
+            </div>
+          </fieldset>
+          <fieldset class="form-fieldset">
+            <legend>Características</legend>
+            <div class="checkbox-grid">
+              <label class="check-option"><input name="piscina" type="checkbox" /> Piscina</label>
+              <label class="check-option"><input name="churrasqueira" type="checkbox" /> Churrasqueira</label>
+              <label class="check-option"><input name="quintal" type="checkbox" /> Quintal</label>
+              <label class="check-option"><input name="jardim" type="checkbox" /> Jardim</label>
+              <label class="check-option"><input name="edicula" type="checkbox" /> Edícula</label>
+              <label class="check-option"><input name="lavanderia" type="checkbox" /> Lavanderia</label>
+              <label class="check-option"><input name="closet" type="checkbox" /> Closet</label>
+              <label class="check-option"><input name="escritorio" type="checkbox" /> Escritório</label>
+              <label class="check-option"><input name="moveisPlanejados" type="checkbox" /> Móveis planejados</label>
+              <label class="check-option"><input name="imovelMobiliado" type="checkbox" /> Imóvel mobiliado</label>
+              <label class="check-option"><input name="arCondicionado" type="checkbox" /> Ar-condicionado</label>
+              <label class="check-option"><input name="energiaSolar" type="checkbox" /> Energia solar</label>
+              <label class="check-option"><input name="garagemCoberta" type="checkbox" /> Garagem coberta</label>
+              <label class="check-option"><input name="portaoEletronico" type="checkbox" /> Portão eletrônico</label>
+              <label class="check-option"><input name="cercaEletrica" type="checkbox" /> Cerca elétrica</label>
+              <label class="check-option"><input name="acessibilidade" type="checkbox" /> Acessibilidade</label>
+            </div>
+          </fieldset>
+          <fieldset class="form-fieldset">
+            <legend>Condições comerciais</legend>
+            <div class="checkbox-grid">
+              <label class="check-option"><input name="aceitaFinanciamento" type="checkbox" /> Aceita financiamento</label>
+              <label class="check-option"><input name="aceitaFGTS" type="checkbox" /> Aceita FGTS</label>
+              <label class="check-option"><input name="aceitaProposta" type="checkbox" /> Aceita proposta</label>
+              <label class="check-option"><input name="aceitaPermuta" type="checkbox" /> Aceita permuta</label>
+              <label class="check-option"><input name="aceitaVeiculo" type="checkbox" /> Aceita veículo</label>
+              <label class="check-option"><input name="documentacaoRegular" type="checkbox" /> Documentação regular</label>
+              <label class="check-option"><input name="escriturado" type="checkbox" /> Imóvel escriturado</label>
             </div>
           </fieldset>
           <fieldset class="form-fieldset">
@@ -129,9 +163,9 @@
             </label>
           </div>
           <div class="field"><label>Descrição</label><textarea name="descricao" rows="3" placeholder="Descrição do imóvel..."></textarea></div>
-          <div class="field"><label>Imagens</label>
-            <input id="image-upload" type="file" accept="image/*" multiple />
-            <small class="field-help">Até 20 imagens por envio.</small>
+          <div class="field"><label>Imagens / Vídeos</label>
+            <input id="image-upload" type="file" accept="image/*,video/*" multiple />
+            <small class="field-help">Até 20 imagens ou vídeos por envio. Arraste para reorganizar antes de salvar.</small>
             <div class="image-preview" id="image-preview"></div>
             <input type="hidden" name="imagens" id="imagens-input" value="[]" />
           </div>

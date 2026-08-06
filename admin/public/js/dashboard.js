@@ -29,6 +29,24 @@
     return res;
   }
 
+  async function downloadMedia(id, ref) {
+    const res = await api(`/${id}/download-media`);
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}));
+      alert(data.error || "Não foi possível baixar as mídias.");
+      return;
+    }
+    const blob = await res.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `imovel-${ref || id}.zip`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  }
+
   /* ---- user info ---- */
   (function () {
     try {
@@ -113,12 +131,14 @@
     const tipo = document.getElementById("filter-tipo").value;
     const finalidade = document.getElementById("filter-finalidade").value;
     const cidade = document.getElementById("filter-cidade").value;
+    const status = document.getElementById("filter-status").value;
     params.set("page", String(page));
     params.set("limit", String(pageSize));
     if (q) params.set("q", q);
     if (tipo) params.set("tipo", tipo);
     if (finalidade) params.set("finalidade", finalidade);
     if (cidade) params.set("cidade", cidade);
+    if (status !== "") params.set("ativo", status);
 
     const res = await api("?" + params.toString());
     if (!res.ok) return;
@@ -150,6 +170,9 @@
             <td data-label="Status">${p.ativo === false ? '<span class="status-pill status-pill-inactive">Inativo</span>' : '<span class="status-pill status-pill-active">Ativo</span>'}</td>
             <td data-label="Ações">
               <div class="actions">
+                <button class="btn-download" data-id="${p._id}" data-ref="${p.referencia || p._id}" title="Baixar mídias" aria-label="Baixar mídias">
+                  <svg viewBox="0 0 24 24" width="14" height="14"><path d="M12 3v10" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><path d="m8 9 4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/><path d="M5 17h14" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+                </button>
                 <button class="btn-edit" data-id="${p._id}">
                   <svg viewBox="0 0 24 24" width="14" height="14"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>
                   Editar
@@ -164,6 +187,7 @@
       )
       .join("");
 
+    tbody.querySelectorAll(".btn-download").forEach((b) => b.addEventListener("click", () => downloadMedia(b.dataset.id, b.dataset.ref || b.dataset.id)));
     tbody.querySelectorAll(".btn-edit").forEach((b) => b.addEventListener("click", () => openEdit(b.dataset.id)));
     tbody.querySelectorAll(".btn-delete").forEach((b) => b.addEventListener("click", () => deleteProperty(b.dataset.id)));
     renderPagination(currentPage, pages, total);
@@ -186,6 +210,22 @@
     return String(value || "").trim();
   }
 
+  function isVideoUrl(url) {
+    return typeof url === "string" && (/\/video\//i.test(url) || /\.(mp4|mov|webm|ogv|avi|mkv)(\?|#|$)/i.test(url));
+  }
+
+  function syncImagesInput() {
+    imagensInput.value = JSON.stringify(uploadedImages);
+  }
+
+  function moveUploadedImage(from, to) {
+    if (from < 0 || to < 0 || from >= uploadedImages.length || to >= uploadedImages.length || from === to) return;
+    const [item] = uploadedImages.splice(from, 1);
+    uploadedImages.splice(to, 0, item);
+    syncImagesInput();
+    renderPreview();
+  }
+
   /* ---- modal ---- */
   const modal = document.getElementById("modal");
   const modalTitle = document.getElementById("modal-title");
@@ -194,6 +234,7 @@
   const imageUpload = document.getElementById("image-upload");
   const imagePreview = document.getElementById("image-preview");
   const imagensInput = document.getElementById("imagens-input");
+  let draggedPreviewIndex = null;
 
   function openModal(title, data) {
     editingId = data ? data._id : null;
@@ -252,9 +293,9 @@
       const data = await res.json();
       uploadedImages = uploadedImages.concat(data.urls);
       renderPreview();
-      imagensInput.value = JSON.stringify(uploadedImages);
+      syncImagesInput();
     } catch (err) {
-      formError.textContent = "Erro ao fazer upload das imagens.";
+      formError.textContent = "Erro ao fazer upload das mídias.";
     }
     imageUpload.value = "";
   });
@@ -263,18 +304,49 @@
     imagePreview.innerHTML = uploadedImages
       .map(
         (url, i) =>
-          `<div style="position:relative;display:inline-block">
-            <img src="${url}" />
-            <button type="button" style="position:absolute;top:-6px;right:-6px;width:20px;height:20px;border-radius:999px;border:0;background:#c0392b;color:#fff;font-size:12px;cursor:pointer;line-height:1" data-idx="${i}">&times;</button>
+          `<div class="media-preview-item" draggable="true" data-idx="${i}">
+            ${isVideoUrl(url) ? `<video src="${url}" muted autoplay loop playsinline preload="metadata" class="media-preview-media"></video>` : `<img src="${url}" class="media-preview-media" />`}
+            <div class="media-preview-controls">
+              <button type="button" class="media-preview-btn" data-move="up" data-idx="${i}" aria-label="Mover para cima">↑</button>
+              <button type="button" class="media-preview-btn" data-move="down" data-idx="${i}" aria-label="Mover para baixo">↓</button>
+              <button type="button" class="media-preview-btn media-preview-delete" data-delete="true" data-idx="${i}" aria-label="Remover">×</button>
+            </div>
           </div>`
       )
       .join("");
-    imagePreview.querySelectorAll("[data-idx]").forEach((b) =>
+    imagePreview.querySelectorAll(".media-preview-item").forEach((item) => {
+      item.addEventListener("dragstart", () => {
+        draggedPreviewIndex = Number(item.dataset.idx);
+        item.classList.add("dragging");
+      });
+      item.addEventListener("dragend", () => {
+        draggedPreviewIndex = null;
+        item.classList.remove("dragging");
+      });
+      item.addEventListener("dragover", (e) => e.preventDefault());
+      item.addEventListener("drop", (e) => {
+        e.preventDefault();
+        const targetIndex = Number(item.dataset.idx);
+        if (draggedPreviewIndex === null) return;
+        moveUploadedImage(draggedPreviewIndex, targetIndex);
+        draggedPreviewIndex = null;
+      });
+    });
+
+    imagePreview.querySelectorAll("[data-delete='true']").forEach((b) =>
       b.addEventListener("click", () => {
         const idx = Number(b.dataset.idx);
         uploadedImages.splice(idx, 1);
-        imagensInput.value = JSON.stringify(uploadedImages);
+        syncImagesInput();
         renderPreview();
+      })
+    );
+
+    imagePreview.querySelectorAll("[data-move]").forEach((b) =>
+      b.addEventListener("click", () => {
+        const idx = Number(b.dataset.idx);
+        const dir = b.dataset.move;
+        moveUploadedImage(idx, dir === "up" ? idx - 1 : idx + 1);
       })
     );
   }
@@ -350,10 +422,10 @@
   loadFilters();
   loadProperties();
 
-  document.querySelectorAll("#filter-search, #filter-tipo, #filter-finalidade, #filter-cidade").forEach((el) => {
-    el.addEventListener("change", () => loadProperties(1));
-    el.addEventListener("input", () => loadProperties(1));
-  });
+    document.querySelectorAll("#filter-search, #filter-tipo, #filter-finalidade, #filter-cidade, #filter-status").forEach((el) => {
+      el.addEventListener("change", () => loadProperties(1));
+      el.addEventListener("input", () => loadProperties(1));
+    });
 
   const searchInput = document.getElementById("filter-search");
   const searchButton = document.getElementById("filter-search-btn");

@@ -88,6 +88,30 @@ function isCloudinaryUrl(url) {
   return typeof url === "string" && /res\.cloudinary\.com/.test(url) && /\/upload\//.test(url);
 }
 
+function isVideoUrl(url) {
+  return typeof url === "string" && (/\/video\//i.test(url) || /\.(mp4|mov|webm|ogv|avi|mkv)(\?|#|$)/i.test(url));
+}
+
+function mediaList(item) {
+  const list = Array.isArray(item.imagens) ? item.imagens.filter(Boolean) : [];
+  return list.length ? list : item.imagem ? [item.imagem] : [];
+}
+
+function previewMedia(item) {
+  const list = mediaList(item);
+  return list.find((url) => !isVideoUrl(url)) || list[0] || "";
+}
+
+function mediaThumbHTML(url, alt, options = {}) {
+  const href = options.href || "";
+  const classes = options.className || "";
+  const content = isVideoUrl(url)
+    ? `<video class="thumb-media ${classes}" src="${url}" muted playsinline autoplay loop preload="metadata"></video>`
+    : `<img class="thumb-media ${classes}" ${responsiveImageAttrs(url, alt, options)} />`;
+  if (!href) return content;
+  return `<a class="thumb-link" href="${href}" aria-label="${options.label || alt}">${content}</a>`;
+}
+
 function cloudinaryVariant(url, width, height) {
   if (!isCloudinaryUrl(url)) return url;
   return url.replace("/upload/", `/upload/f_auto,q_auto,w_${width},h_${height},c_fill/`);
@@ -127,18 +151,33 @@ const q = document.getElementById("hero-q");
 const tipo = document.getElementById("hero-tipo");
 const cidade = document.getElementById("hero-cidade");
 const valor = document.getElementById("hero-valor");
+const heroValorTrigger = document.getElementById("hero-valor-trigger");
+const heroValorPanel = document.getElementById("hero-valor-panel");
+const heroValorApply = document.getElementById("hero-valor-apply");
+const heroValorMinRange = document.getElementById("hero-valor-min-range");
+const heroValorMaxRange = document.getElementById("hero-valor-max-range");
+const heroValorMin = document.getElementById("hero-valor-min");
+const heroValorMax = document.getElementById("hero-valor-max");
+const heroValorRangeLabel = document.getElementById("hero-valor-range-label");
 const heroSearchBtn = document.getElementById("hero-search-btn");
 const mobileFilterTrigger = document.getElementById("mobile-filter-trigger");
+const mobileFilterTriggerLabel = document.getElementById("mobile-filter-trigger-label");
 const mobileFilterBackdrop = document.getElementById("mobile-filter-backdrop");
 const mobileFilterSheet = document.getElementById("mobile-filter-sheet");
+const mobileFilterCodeOnly = document.getElementById("mobile-filter-code-only");
 const mobileFilterClose = document.getElementById("mobile-filter-close");
+const mobileFilterClear = document.getElementById("mobile-filter-clear");
 const mobileFilterApply = document.getElementById("mobile-filter-apply");
+const codeSearchTrigger = document.getElementById("code-search-trigger");
 const mobileFilterQ = document.getElementById("mobile-filter-q");
 const mobileFilterFinalidade = document.getElementById("mobile-filter-finalidade");
 const mobileFilterTipo = document.getElementById("mobile-filter-tipo");
 const mobileFilterCidade = document.getElementById("mobile-filter-cidade");
 const mobileFilterValor = document.getElementById("mobile-filter-valor");
 const mobileFilterQuartos = document.getElementById("mobile-filter-quartos");
+const mobileFilterVagas = document.getElementById("mobile-filter-vagas");
+const mobileFilterSuites = document.getElementById("mobile-filter-suites");
+const mobileFilterReferencia = document.getElementById("mobile-filter-referencia");
 const mobileFilterBairro = document.getElementById("mobile-filter-bairro");
 const cards = document.getElementById("cards");
 const stats = document.getElementById("stats");
@@ -146,16 +185,183 @@ const loadMore = document.getElementById("load-more");
 const trustCount = document.querySelector('[data-trust="count"] strong');
 const heroSearchStatus = document.getElementById("hero-search-status");
 const heroClearBtn = document.getElementById("hero-clear-btn");
+const heroTitle = document.querySelector(".hero h1");
+const heroSubtitle = document.querySelector(".hero-content > p");
+
+if (heroSearchStatus) {
+  heroSearchStatus.style.setProperty("display", "block", "important");
+  heroSearchStatus.style.setProperty("position", "static", "important");
+  heroSearchStatus.style.setProperty("background", "transparent", "important");
+  heroSearchStatus.style.setProperty("background-image", "none", "important");
+  heroSearchStatus.style.setProperty("border", "0", "important");
+  heroSearchStatus.style.setProperty("border-radius", "0", "important");
+  heroSearchStatus.style.setProperty("box-shadow", "none", "important");
+  heroSearchStatus.style.setProperty("padding", "0", "important");
+  heroSearchStatus.style.setProperty("margin", ".65rem 0 0 auto", "important");
+  heroSearchStatus.style.setProperty("color", "#374151", "important");
+  heroSearchStatus.style.setProperty("text-align", "right", "important");
+  heroSearchStatus.style.setProperty("font-size", ".74rem", "important");
+  heroSearchStatus.style.setProperty("line-height", "1.25", "important");
+  heroSearchStatus.style.setProperty("align-self", "flex-end", "important");
+  heroSearchStatus.style.setProperty("width", "auto", "important");
+  heroSearchStatus.style.setProperty("max-width", "calc(100% - 1.4rem)", "important");
+}
+
+if (heroSubtitle) {
+  heroSubtitle.style.setProperty("opacity", "1", "important");
+  heroSubtitle.style.setProperty("display", "block", "important");
+  heroSubtitle.style.setProperty("visibility", "visible", "important");
+}
+
+if (heroTitle) {
+  heroTitle.style.setProperty("opacity", "1", "important");
+  heroTitle.style.setProperty("display", "block", "important");
+  heroTitle.style.setProperty("visibility", "visible", "important");
+  heroTitle.style.setProperty("color", "#11633b", "important");
+  heroTitle.style.setProperty("text-align", "left", "important");
+  heroTitle.style.setProperty("justify-self", "start", "important");
+  heroTitle.style.setProperty("margin-left", "0", "important");
+  heroTitle.style.setProperty("margin-right", "auto", "important");
+}
+
+function syncHeroTextTheme() {
+  const isMobile = window.matchMedia && window.matchMedia("(max-width: 638px)").matches;
+  if (heroSubtitle) {
+    heroSubtitle.style.setProperty("color", isMobile ? "#fff" : "#fff", "important");
+  }
+  if (heroTitle) {
+    heroTitle.style.setProperty("text-align", "left", "important");
+    heroTitle.style.setProperty("justify-self", "start", "important");
+    heroTitle.style.setProperty("margin-left", "0", "important");
+    heroTitle.style.setProperty("margin-right", "auto", "important");
+  }
+}
+
+syncHeroTextTheme();
+window.addEventListener("resize", syncHeroTextTheme);
+
 let visibleCount = window.matchMedia && window.matchMedia("(max-width: 900px)").matches ? 6 : 12;
 let filtroFinalidade = "";
 let categoriaFiltro = "";
 let filtroQuartos = "";
+let filtroVagas = "";
+let filtroSuites = "";
+let filtroReferencia = "";
+let filtroValorCustom = "";
 let filtroBairro = "";
+
+function matchesReference(item, query) {
+  const value = String(query || "").trim();
+  if (!value) return true;
+  const ref = refKey(item.referencia || item._id);
+  const haystack = `${ref.raw} ${ref.numeric}`.toLowerCase();
+  return haystack.includes(value.toLowerCase().replace(/\s+/g, ""));
+}
+
+function parseValorRange(value) {
+  const text = String(value || "").trim();
+  if (!text) return { min: 6000, max: 20000000, custom: false };
+  if (/^\d+-\d+$/.test(text)) {
+    const [min, max] = text.split("-").map(Number);
+    return { min, max, custom: true };
+  }
+  if (/^\d+\+$/.test(text)) {
+    return { min: Number(text.replace(/\+$/, "")) || 6000, max: 20000000, custom: true };
+  }
+  return { min: 6000, max: 20000000, custom: false };
+}
+
+function syncValorPanel(min, max) {
+  const low = Math.max(6000, Math.min(Number(min) || 6000, 20000000));
+  const high = Math.max(low, Math.min(Number(max) || 20000000, 20000000));
+  if (heroValorMinRange) heroValorMinRange.value = String(low);
+  if (heroValorMaxRange) heroValorMaxRange.value = String(high);
+  if (heroValorMin) heroValorMin.value = String(low);
+  if (heroValorMax) heroValorMax.value = String(high);
+  if (heroValorRangeLabel) heroValorRangeLabel.textContent = `${formatMoney(low)} - ${formatMoney(high)}`;
+}
+
+function updateValorTriggerLabel() {
+  if (!heroValorTrigger) return;
+  const text = String(filtroValorCustom || valor?.value || "").trim();
+  if (!text) {
+    heroValorTrigger.textContent = "Qualquer valor";
+    return;
+  }
+  const preset = valor?.options?.[valor.selectedIndex]?.textContent || "Valor";
+  const parsed = parseValorRange(text);
+  heroValorTrigger.textContent = parsed.custom ? `${formatMoney(parsed.min)} - ${formatMoney(parsed.max)}` : preset;
+}
+
+function openValorPanel() {
+  if (!heroValorPanel) return;
+  const parsed = parseValorRange(filtroValorCustom || valor?.value);
+  syncValorPanel(parsed.min, parsed.max);
+  heroValorPanel.classList.add("open");
+  heroValorPanel.setAttribute("aria-hidden", "false");
+}
+
+function closeValorPanel() {
+  heroValorPanel?.classList.remove("open");
+  heroValorPanel?.setAttribute("aria-hidden", "true");
+}
+
+function applyValorPanel() {
+  if (!heroValorMin || !heroValorMax) return;
+  const min = Math.max(6000, Math.min(Number(heroValorMin.value) || 6000, 20000000));
+  const max = Math.max(min, Math.min(Number(heroValorMax.value) || 20000000, 20000000));
+  if (min <= 6000 && max >= 20000000) {
+    filtroValorCustom = "";
+  } else {
+    filtroValorCustom = `${min}-${max}`;
+  }
+  valor.value = "";
+  updateValorTriggerLabel();
+  render();
+  closeValorPanel();
+}
 
 function updateTrustCount(total) {
   if (!trustCount) return;
   const n = Number(total) || 0;
   trustCount.textContent = n === 1 ? "1 imóvel" : `${n} imóveis`;
+}
+
+function buildAdvancedFilterCards() {
+  document.querySelectorAll(".desktop-filter-options").forEach((container) => {
+    const group = container.dataset.filterGroup;
+    if (!group || container.childElementCount) return;
+    const options = [1, 2, 3, 4, 5].map((value) => ({ value, label: value === 5 ? "5+" : String(value) }));
+    container.innerHTML = options
+      .map(
+        ({ value, label }) => `<button type="button" class="desktop-filter-chip" data-filter-group="${group}" data-filter-value="${value}">${label}</button>`
+      )
+      .join("");
+  });
+}
+
+function syncAdvancedFilterCards() {
+  document.querySelectorAll(".desktop-filter-chip").forEach((btn) => {
+    const group = btn.dataset.filterGroup;
+    const value = btn.dataset.filterValue;
+    const active = (group === "quartos" && filtroQuartos === value) ||
+      (group === "suites" && filtroSuites === value) ||
+      (group === "vagas" && filtroVagas === value);
+    btn.classList.toggle("active", active);
+  });
+  if (mobileFilterTriggerLabel) {
+    mobileFilterTriggerLabel.textContent = mobileFilterSheet?.classList.contains("open") ? "Ocultar filtros avançados" : "Filtros avançados";
+  }
+}
+
+function applyAdvancedFilter(group, value) {
+  const normalized = String(value || "");
+  if (group === "quartos") filtroQuartos = filtroQuartos === normalized ? "" : normalized;
+  if (group === "suites") filtroSuites = filtroSuites === normalized ? "" : normalized;
+  if (group === "vagas") filtroVagas = filtroVagas === normalized ? "" : normalized;
+  visibleCount = 12;
+  render();
+  syncAdvancedFilterCards();
 }
 
 function pluralize(value, singular, plural) {
@@ -189,11 +395,14 @@ function getFilteredProperties() {
     const hitCategoria = !categoriaFiltro || matchesCategory(i.tipo, categoriaFiltro);
     const hitFinalidade = !filtroFinalidade || matchesFinalidade(i.finalidade, filtroFinalidade);
     const hitCidade = !cidade.value || i.cidade === cidade.value;
-    const hitValor = filterByValor(i, valor.value);
+    const hitValor = filterByValor(i, valor.value, filtroValorCustom);
     const hitQuartos = !filtroQuartos || Number(i.dormitorios || 0) >= Number(filtroQuartos);
+    const hitVagas = !filtroVagas || Number(i.vagas || i.garagens || 0) >= Number(filtroVagas);
+    const hitSuites = !filtroSuites || Number(i.suites || 0) >= Number(filtroSuites);
+    const hitReferencia = matchesReference(i, filtroReferencia);
     const textBairro = `${i.bairro || ""} ${i.endereco || ""}`.toLowerCase();
     const hitBairro = !filtroBairro || textBairro.includes(filtroBairro.toLowerCase());
-    return hitTerm && hitTipo && hitCategoria && hitFinalidade && hitCidade && hitValor && hitQuartos && hitBairro;
+    return hitTerm && hitTipo && hitCategoria && hitFinalidade && hitCidade && hitValor && hitQuartos && hitVagas && hitSuites && hitReferencia && hitBairro;
   });
 }
 
@@ -219,15 +428,20 @@ function hasActiveFilters() {
     tipo.value ||
     cidade.value ||
     valor.value ||
+    filtroValorCustom ||
     filtroFinalidade ||
     categoriaFiltro ||
     filtroQuartos ||
+    filtroVagas ||
+    filtroSuites ||
+    filtroReferencia ||
     filtroBairro
   );
 }
 
 function updateClearButton() {
   heroClearBtn?.classList.toggle("show", hasActiveFilters());
+  mobileFilterClear?.classList.toggle("show", hasActiveFilters());
 }
 
 function scrollToResultsIfAny(count) {
@@ -275,11 +489,12 @@ function renderFeatureIcons(item, limit = 4) {
   }).join("")}</div>`;
 }
 
-function filterByValor(prop, range) {
-  if (!range) return true;
-  const [min, max] = range.split("-").map(Number);
+function filterByValor(prop, range, customRange = "") {
+  const activeRange = customRange || range;
+  if (!activeRange) return true;
+  const [min, max] = activeRange.split("-").map(Number);
   const val = parseCurrency(prop.venda) || parseCurrency(prop.locacao);
-  if (range.endsWith("+")) return val >= min;
+  if (activeRange.endsWith("+")) return val >= min;
   return val >= min && val <= max;
 }
 
@@ -369,7 +584,18 @@ function render() {
       <article class="card reveal show">
         <div class="thumb-wrap">
           ${mapPinHTML(i)}
-          <img ${responsiveImageAttrs(i.imagem, `Imovel ${i.referencia}`, { width: 800, height: 600, sizes: "(max-width: 768px) 100vw, 33vw", loading: "lazy" })} />
+          ${mediaThumbHTML(
+            previewMedia(i),
+            `Imovel ${i.referencia}`,
+            {
+              href: `/imovel/${encodeURIComponent(i.slug || propertySlug(i))}?ref=${encodeURIComponent(refKey(i.referencia || i._id).raw)}`,
+              label: `Ver detalhes do imóvel ${i.referencia || i._id}`,
+              width: 800,
+              height: 600,
+              sizes: "(max-width: 768px) 100vw, 33vw",
+              loading: "lazy",
+            }
+          )}
         </div>
         <div class="card-body">
           <div class="meta"><span class="tag">Ref ${i.referencia || i._id}</span><span class="tag">${i.tipo}</span><span class="tag">${i.finalidade}</span></div>
@@ -420,23 +646,52 @@ function syncMobileSheet() {
   if (mobileFilterCidade) mobileFilterCidade.value = cidade.value;
   if (mobileFilterValor) mobileFilterValor.value = valor.value;
   if (mobileFilterQuartos) mobileFilterQuartos.value = filtroQuartos;
+  if (mobileFilterVagas) mobileFilterVagas.value = filtroVagas;
+  if (mobileFilterSuites) mobileFilterSuites.value = filtroSuites;
+  if (mobileFilterReferencia) mobileFilterReferencia.value = filtroReferencia;
   if (mobileFilterBairro) mobileFilterBairro.value = filtroBairro;
   if (mobileFilterFinalidade) mobileFilterFinalidade.value = filtroFinalidade || "";
 }
 
 function openMobileFilters() {
+  closeCodeSearchMode();
   syncMobileSheet();
   mobileFilterSheet?.classList.add("open");
-  mobileFilterBackdrop?.classList.add("open");
   mobileFilterSheet?.setAttribute("aria-hidden", "false");
-  document.body.classList.add("no-scroll");
+  mobileFilterTrigger?.setAttribute("aria-expanded", "true");
+  if (mobileFilterTriggerLabel) mobileFilterTriggerLabel.textContent = "Ocultar filtros avançados";
 }
 
 function closeMobileFilters() {
+  closeCodeSearchMode();
   mobileFilterSheet?.classList.remove("open");
-  mobileFilterBackdrop?.classList.remove("open");
   mobileFilterSheet?.setAttribute("aria-hidden", "true");
-  document.body.classList.remove("no-scroll");
+  mobileFilterTrigger?.setAttribute("aria-expanded", "false");
+  if (mobileFilterTriggerLabel) mobileFilterTriggerLabel.textContent = "Filtros avançados";
+}
+
+function toggleMobileFilters() {
+  if (mobileFilterSheet?.classList.contains("open")) closeMobileFilters();
+  else openMobileFilters();
+}
+
+function openCodeSearch() {
+  if (!mobileFilterSheet?.classList.contains("open")) openMobileFilters();
+  mobileFilterSheet?.classList.add("code-only");
+  mobileFilterReferencia?.focus();
+  mobileFilterReferencia?.select?.();
+}
+
+function toggleCodeSearch() {
+  if (mobileFilterSheet?.classList.contains("code-only")) {
+    closeMobileFilters();
+    return;
+  }
+  openCodeSearch();
+}
+
+function closeCodeSearchMode() {
+  mobileFilterSheet?.classList.remove("code-only");
 }
 
 function applyMobileFilters() {
@@ -444,15 +699,21 @@ function applyMobileFilters() {
   tipo.value = mobileFilterTipo?.value || "";
   cidade.value = mobileFilterCidade?.value || "";
   valor.value = mobileFilterValor?.value || "";
+  filtroValorCustom = "";
   filtroFinalidade = mobileFilterFinalidade?.value || "";
   categoriaFiltro = "";
   filtroQuartos = mobileFilterQuartos?.value || "";
+  filtroVagas = mobileFilterVagas?.value || "";
+  filtroSuites = mobileFilterSuites?.value || "";
+  filtroReferencia = mobileFilterReferencia?.value || "";
   filtroBairro = mobileFilterBairro?.value || "";
   document.querySelectorAll(".hero-search-pills .pill").forEach((b) => b.classList.remove("active"));
   const activePill = document.querySelector(`.hero-search-pills .pill[data-fin="${filtroFinalidade || "todos"}"]`);
   activePill?.classList.add("active");
   visibleCount = 12;
   const total = render();
+  syncAdvancedFilterCards();
+  closeCodeSearchMode();
   closeMobileFilters();
   scrollToResultsIfAny(total);
 }
@@ -465,11 +726,18 @@ function clearFilters() {
   filtroFinalidade = "";
   categoriaFiltro = "";
   filtroQuartos = "";
+  filtroVagas = "";
+  filtroSuites = "";
+  filtroReferencia = "";
+  filtroValorCustom = "";
   filtroBairro = "";
   document.querySelectorAll(".hero-search-pills .pill").forEach((b) => b.classList.remove("active"));
   document.querySelector('.hero-search-pills .pill[data-fin="todos"]')?.classList.add("active");
   visibleCount = 12;
   render();
+  updateValorTriggerLabel();
+  syncAdvancedFilterCards();
+  closeCodeSearchMode();
 }
 
 function applyHeroSearch() {
@@ -482,6 +750,45 @@ function applyHeroSearch() {
   visibleCount = 12;
   render();
 }));
+
+valor?.addEventListener("change", () => {
+  filtroValorCustom = "";
+  updateValorTriggerLabel();
+});
+
+heroValorTrigger?.addEventListener("click", () => {
+  const open = heroValorPanel?.classList.contains("open");
+  if (open) closeValorPanel();
+  else openValorPanel();
+});
+
+heroValorApply?.addEventListener("click", applyValorPanel);
+
+[heroValorMinRange, heroValorMaxRange, heroValorMin, heroValorMax].forEach((el) => {
+  el?.addEventListener("input", () => {
+    const min = heroValorMinRange ? Number(heroValorMinRange.value) : Number(heroValorMin?.value || 6000);
+    const max = heroValorMaxRange ? Number(heroValorMaxRange.value) : Number(heroValorMax?.value || 20000000);
+    syncValorPanel(min, max);
+  });
+});
+
+document.addEventListener("click", (e) => {
+  if (!heroValorPanel || !heroValorTrigger) return;
+  if (heroValorPanel.contains(e.target) || heroValorTrigger.contains(e.target)) return;
+  closeValorPanel();
+});
+
+[mobileFilterQuartos, mobileFilterVagas, mobileFilterSuites].forEach((el) => {
+  el?.addEventListener("change", () => {
+    // Keep the sheet state in sync until the user applies the filters.
+  });
+});
+
+document.addEventListener("click", (e) => {
+  const chip = e.target.closest?.(".desktop-filter-chip");
+  if (!chip) return;
+  applyAdvancedFilter(chip.dataset.filterGroup, chip.dataset.filterValue);
+});
 
 q?.addEventListener("keydown", (e) => {
   if (e.key === "Enter") {
@@ -496,7 +803,8 @@ document.querySelectorAll(".hero-search-pills .pill").forEach((btn) => {
     btn.classList.add("active");
     filtroFinalidade = btn.dataset.fin === "todos" ? "" : btn.dataset.fin;
     visibleCount = 12;
-    render();
+    const total = render();
+    scrollToResultsIfAny(total);
   });
 });
 
@@ -527,17 +835,23 @@ if (loadMore) {
   });
 }
 
-mobileFilterTrigger?.addEventListener("click", openMobileFilters);
+mobileFilterTrigger?.addEventListener("click", toggleMobileFilters);
 mobileFilterClose?.addEventListener("click", closeMobileFilters);
+mobileFilterClear?.addEventListener("click", clearFilters);
 mobileFilterBackdrop?.addEventListener("click", closeMobileFilters);
 mobileFilterApply?.addEventListener("click", applyMobileFilters);
+codeSearchTrigger?.addEventListener("click", toggleCodeSearch);
 
 document.addEventListener("keydown", (e) => {
   if (e.key === "Escape") closeMobileFilters();
 });
 
 populateSelects();
+buildAdvancedFilterCards();
+updateValorTriggerLabel();
 render();
+syncAdvancedFilterCards();
+closeMobileFilters();
 carregarImoveis();
 
 const observer = new IntersectionObserver(
@@ -561,7 +875,18 @@ function renderDestaques() {
       <article class="card card-destaque reveal show">
         <div class="thumb-wrap">
           ${mapPinHTML(i)}
-          <img ${responsiveImageAttrs(i.imagem, `Imovel ${i.referencia}`, { width: 800, height: 600, sizes: "(max-width: 768px) 100vw, 33vw", loading: "lazy" })} />
+          ${mediaThumbHTML(
+            previewMedia(i),
+            `Imovel ${i.referencia}`,
+            {
+              href: `/imovel/${encodeURIComponent(i.slug || propertySlug(i))}?ref=${encodeURIComponent(refKey(i.referencia || i._id).raw)}`,
+              label: `Ver detalhes do imóvel ${i.referencia || i._id}`,
+              width: 800,
+              height: 600,
+              sizes: "(max-width: 768px) 100vw, 33vw",
+              loading: "lazy",
+            }
+          )}
         </div>
         <div class="card-badge">Destaque</div>
         <div class="card-body">
