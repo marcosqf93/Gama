@@ -229,38 +229,59 @@
         <div class="container">
           <div class="section-title-wrap">
             <p class="eyebrow">Escolha da semana</p>
-            <h2>Imóveis em destaque</h2>
           </div>
-          <div class="cards destaque-cards" id="destaque-cards"></div>
+          <div class="destaque-carousel-shell">
+            <div class="destaque-carousel" id="destaque-cards"></div>
+            <div class="destaque-dots" id="destaque-dots" aria-label="Posição dos imóveis em destaque"></div>
+          </div>
         </div>
       </section>
 
       <section class="section reveal reveal-fade dark-section" id="categorias">
         <div class="container">
           <div class="section-title-wrap">
-            <p class="eyebrow">Categorias</p>
             <h2>Encontre por tipo de imóvel</h2>
           </div>
           <div class="category-grid">
-            <button class="category-card category-card-photo category-casa" data-cat="Casa" data-scroll="true">
-              <span class="category-label">Casas</span>
-              <span class="category-subtitle">Residências e sobrados para comprar ou alugar.</span>
+            <button type="button" class="category-card category-card-photo category-casa" data-cat="Casa" data-scroll="true">
+              <span class="category-card-count" data-category-count="Casa">0 imóveis</span>
+              <span class="category-card-copy">
+                <span class="category-label">Casas</span>
+                <span class="category-subtitle">Imagem de residência</span>
+                <span class="category-cta">Ver imóveis →</span>
+              </span>
             </button>
-            <button class="category-card category-card-photo category-terreno" data-cat="Terreno" data-scroll="true">
-              <span class="category-label">Terrenos</span>
-              <span class="category-subtitle">Lotes e áreas para construir ou investir.</span>
+            <button type="button" class="category-card category-card-photo category-terreno" data-cat="Terreno" data-scroll="true">
+              <span class="category-card-count" data-category-count="Terreno">0 imóveis</span>
+              <span class="category-card-copy">
+                <span class="category-label">Terrenos</span>
+                <span class="category-subtitle">Imagem de lote ou área</span>
+                <span class="category-cta">Ver imóveis →</span>
+              </span>
             </button>
-            <button class="category-card category-card-photo category-chacara" data-cat="Chácara" data-scroll="true">
-              <span class="category-label">Chácaras</span>
-              <span class="category-subtitle">Imóveis para lazer, moradia e contato com a natureza.</span>
+            <button type="button" class="category-card category-card-photo category-chacara" data-cat="Chácara" data-scroll="true">
+              <span class="category-card-count" data-category-count="Chácara">0 imóveis</span>
+              <span class="category-card-copy">
+                <span class="category-label">Chácaras</span>
+                <span class="category-subtitle">Imagem rural ou de lazer</span>
+                <span class="category-cta">Ver imóveis →</span>
+              </span>
             </button>
-            <button class="category-card category-card-photo category-fazenda" data-cat="Fazenda" data-scroll="true">
-              <span class="category-label">Fazendas</span>
-              <span class="category-subtitle">Áreas rurais para produção e investimento.</span>
+            <button type="button" class="category-card category-card-photo category-fazenda" data-cat="Fazenda" data-scroll="true">
+              <span class="category-card-count" data-category-count="Fazenda">0 imóveis</span>
+              <span class="category-card-copy">
+                <span class="category-label">Fazendas</span>
+                <span class="category-subtitle">Imagem rural ampla</span>
+                <span class="category-cta">Ver imóveis →</span>
+              </span>
             </button>
-            <button class="category-card category-card-photo category-comercial" data-cat="Comercial" data-scroll="true">
-              <span class="category-label">Comercial</span>
-              <span class="category-subtitle">Lojas, salas e imóveis para o seu negócio.</span>
+            <button type="button" class="category-card category-card-photo category-comercial" data-cat="Comercial" data-scroll="true">
+              <span class="category-card-count" data-category-count="Comercial">0 imóveis</span>
+              <span class="category-card-copy">
+                <span class="category-label">Comercial</span>
+                <span class="category-subtitle">Imagem comercial urbana</span>
+                <span class="category-cta">Ver imóveis →</span>
+              </span>
             </button>
           </div>
         </div>
@@ -268,6 +289,9 @@
 
       <section class="section search-section reveal reveal-fade" id="imoveis">
         <div class="container">
+          <div class="section-title-wrap">
+            <h2>Todos os imóveis</h2>
+          </div>
           <div class="stats" id="stats"></div>
           <div class="cards" id="cards"></div>
           <div style="margin-top: 1rem; text-align: center">
@@ -280,7 +304,6 @@
         <div class="container reviews-box">
           <div class="reviews-header">
             <div>
-              <p class="eyebrow">Avaliações Google</p>
               <h2>O que nossos clientes dizem.</h2>
               <div class="google-rating-badge" aria-label="Avaliação média no Google 4,7 de 5">
                 <span class="google-logo" aria-hidden="true">
@@ -346,7 +369,6 @@
       <section class="section cta-section reveal reveal-zoom" id="cta-anunciar">
         <div class="container cta-box">
         <div class="cta-content">
-          <p class="eyebrow">Proprietário</p>
           <h2>Quer vender ou alugar seu imóvel?</h2>
           <p>Conte com divulgação profissional e atendimento especializado para vender ou alugar seu imóvel.</p>
         </div>

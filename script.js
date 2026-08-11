@@ -220,14 +220,15 @@ if (heroSearchStatus) {
   heroSearchStatus.style.setProperty("border-radius", "0", "important");
   heroSearchStatus.style.setProperty("box-shadow", "none", "important");
   heroSearchStatus.style.setProperty("padding", "0", "important");
-  heroSearchStatus.style.setProperty("margin", ".65rem 0 0 auto", "important");
-  heroSearchStatus.style.setProperty("color", "#374151", "important");
-  heroSearchStatus.style.setProperty("text-align", "right", "important");
-  heroSearchStatus.style.setProperty("font-size", ".74rem", "important");
-  heroSearchStatus.style.setProperty("line-height", "1.25", "important");
-  heroSearchStatus.style.setProperty("align-self", "flex-end", "important");
-  heroSearchStatus.style.setProperty("width", "auto", "important");
-  heroSearchStatus.style.setProperty("max-width", "calc(100% - 1.4rem)", "important");
+  heroSearchStatus.style.setProperty("margin", ".75rem 0 0", "important");
+  heroSearchStatus.style.setProperty("color", "rgba(255,255,255,.96)", "important");
+  heroSearchStatus.style.setProperty("text-shadow", "0 1px 2px rgba(0,0,0,.45)", "important");
+  heroSearchStatus.style.setProperty("text-align", "left", "important");
+  heroSearchStatus.style.setProperty("font-size", ".86rem", "important");
+  heroSearchStatus.style.setProperty("line-height", "1.35", "important");
+  heroSearchStatus.style.setProperty("align-self", "stretch", "important");
+  heroSearchStatus.style.setProperty("width", "100%", "important");
+  heroSearchStatus.style.setProperty("max-width", "none", "important");
 }
 
 if (heroSubtitle) {
@@ -248,9 +249,9 @@ if (heroTitle) {
 }
 
 function syncHeroTextTheme() {
-  const isMobile = window.matchMedia && window.matchMedia("(max-width: 638px)").matches;
   if (heroSubtitle) {
-    heroSubtitle.style.setProperty("color", isMobile ? "#fff" : "#fff", "important");
+    heroSubtitle.style.setProperty("color", "#fff", "important");
+    heroSubtitle.style.setProperty("text-shadow", "0 3px 16px rgba(8,45,29,1), 0 0 8px rgba(8,45,29,.92)", "important");
   }
   if (heroTitle) {
     heroTitle.style.setProperty("text-align", "left", "important");
@@ -348,6 +349,14 @@ function updateTrustCount(total) {
   if (!trustCount) return;
   const n = Number(total) || 0;
   trustCount.textContent = n === 1 ? "1 imóvel" : `${n} imóveis`;
+}
+
+function updateCategoryCounts() {
+  document.querySelectorAll("[data-category-count]").forEach((el) => {
+    const category = el.dataset.categoryCount || "";
+    const count = imoveis.filter((item) => matchesCategory(item.tipo, category)).length;
+    el.textContent = count === 1 ? "1 imóvel" : `${count} imóveis`;
+  });
 }
 
 function buildAdvancedFilterCards() {
@@ -569,6 +578,7 @@ function setImoveis(data) {
   populateSelects();
   visibleCount = 12;
   updateTrustCount(imoveis.length);
+  updateCategoryCounts();
   window.dispatchEvent(new CustomEvent("imoveis-ready", { detail: { total: imoveis.length } }));
   render();
   renderDestaques();
@@ -756,6 +766,7 @@ function clearFilters() {
   filtroBairro = "";
   document.querySelectorAll(".hero-search-pills .pill").forEach((b) => b.classList.remove("active"));
   document.querySelector('.hero-search-pills .pill[data-fin="todos"]')?.classList.add("active");
+  document.querySelectorAll(".category-card").forEach((b) => b.classList.remove("active"));
   visibleCount = 12;
   render();
   updateValorTriggerLabel();
@@ -872,6 +883,7 @@ document.addEventListener("keydown", (e) => {
 populateSelects();
 buildAdvancedFilterCards();
 updateValorTriggerLabel();
+updateCategoryCounts();
 render();
 syncAdvancedFilterCards();
 closeMobileFilters();
@@ -926,6 +938,113 @@ function renderDestaques() {
       </article>`
     )
     .join("");
+  initDestaqueCarousel();
+}
+
+let destaqueAutoFrame = null;
+function renderDestaqueDots(total) {
+  const wrap = document.getElementById("destaque-dots");
+  if (!wrap) return;
+  if (!total) {
+    wrap.innerHTML = "";
+    return;
+  }
+  wrap.innerHTML = Array.from({ length: total }, (_, i) => `<button type="button" class="destaque-dot ${i === 0 ? "active" : ""}" data-index="${i}" aria-label="Ir para destaque ${i + 1}"></button>`).join("");
+}
+
+function initDestaqueCarousel() {
+  const shell = document.querySelector(".destaque-carousel-shell");
+  const track = document.getElementById("destaque-cards");
+  const dotsWrap = document.getElementById("destaque-dots");
+  if (!shell || !track || !dotsWrap) return;
+
+  const originals = Array.from(track.children).filter((node) => !node.dataset.clone);
+  if (!originals.length) return;
+
+  if (track.dataset.loopPrepared !== "1") {
+    const clones = originals.map((node) => {
+      const clone = node.cloneNode(true);
+      clone.dataset.clone = "1";
+      return clone.outerHTML;
+    }).join("");
+    track.insertAdjacentHTML("beforeend", clones);
+    track.dataset.loopPrepared = "1";
+  }
+
+  const total = originals.length;
+  const gap = 16;
+  let offset = 0;
+  let lastTs = 0;
+  let paused = false;
+  let segmentWidth = 0;
+
+  const firstCardWidth = () => {
+    const card = track.querySelector(".card");
+    return card ? card.getBoundingClientRect().width + gap : 0;
+  };
+
+  const updateDots = () => {
+    if (!segmentWidth || !total) return;
+    const dots = dotsWrap.querySelectorAll(".destaque-dot");
+    const slot = segmentWidth / total;
+    const index = Math.floor((offset % segmentWidth) / slot) % total;
+    dots.forEach((dot, i) => dot.classList.toggle("active", i === index));
+  };
+
+  const measure = () => {
+    segmentWidth = firstCardWidth() * total;
+    if (segmentWidth > 0) {
+      offset %= segmentWidth;
+      track.style.transform = `translate3d(${-offset}px, 0, 0)`;
+      updateDots();
+    }
+  };
+
+  const tick = (ts) => {
+    if (!lastTs) lastTs = ts;
+    const dt = (ts - lastTs) / 1000;
+    lastTs = ts;
+    if (!paused && segmentWidth > 0) {
+      const speed = 42;
+      offset += speed * dt;
+      if (offset >= segmentWidth) offset -= segmentWidth;
+      track.style.transform = `translate3d(${-offset}px, 0, 0)`;
+      updateDots();
+    }
+    destaqueAutoFrame = window.requestAnimationFrame(tick);
+  };
+
+  const start = () => {
+    paused = false;
+    if (!destaqueAutoFrame) {
+      lastTs = 0;
+      destaqueAutoFrame = window.requestAnimationFrame(tick);
+    }
+  };
+
+  const stop = () => {
+    paused = true;
+  };
+
+  if (shell.dataset.carouselBound !== "1") {
+    shell.dataset.carouselBound = "1";
+    shell.addEventListener("mouseenter", stop);
+    shell.addEventListener("mouseleave", start);
+    shell.addEventListener("touchstart", stop, { passive: true });
+    shell.addEventListener("touchend", start, { passive: true });
+    window.addEventListener("resize", measure);
+    dotsWrap.addEventListener("click", (e) => {
+      const dot = e.target.closest?.(".destaque-dot");
+      if (!dot || !segmentWidth) return;
+      const index = Number(dot.dataset.index) || 0;
+      offset = (segmentWidth / total) * index;
+      track.style.transform = `translate3d(${-offset}px, 0, 0)`;
+      updateDots();
+    });
+  }
+
+  measure();
+  start();
 }
 
 renderDestaques();

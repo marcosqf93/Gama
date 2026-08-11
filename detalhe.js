@@ -616,11 +616,6 @@ async function initDetail() {
   const backBtn = document.getElementById("detail-back-btn");
   if (backBtn) {
     backBtn.addEventListener("click", () => {
-      const sameOriginReferrer = document.referrer && document.referrer.startsWith(window.location.origin);
-      if (sameOriginReferrer && window.history.length > 1) {
-        window.history.back();
-        return;
-      }
       window.location.href = "/#imoveis";
     });
   }

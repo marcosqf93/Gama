@@ -82,9 +82,9 @@ function renderLayout() {
         </div>
         <div class="footer-signature-wrap">
           <div class="footer-copyright">Copyright 2026 Imobiliária Geraldo Gama.</div>
-          <a class="footer-signature" href="https://wa.me/5567999638295" target="_blank" rel="noopener" aria-label="Abrir contato do desenvolvedor no WhatsApp">
+          <a class="footer-signature" href="https://wa.me/5567999638295" target="_blank" rel="noopener" aria-label="Abrir contato do desenvolvedor no WhatsApp" style="background: transparent; box-shadow: none; border: 0; padding: 0; border-radius: 0;">
             <span class="footer-signature-label">Desenvolvido por</span>
-            <img class="footer-dev-logo" src="https://i.postimg.cc/ZKhKH9RF/mf-dev-studio-horizontal-transparente.png" alt="MF Dev Studio" />
+            <img class="footer-dev-logo" src="https://i.postimg.cc/tCVp8dPz/mf-dev-studio-horizontal-cinza-transparente.png" alt="MF Dev Studio" />
           </a>
         </div>
       </footer>
@@ -98,6 +98,18 @@ function renderLayout() {
     const brandLink = document.querySelector(".brand-link");
     const brandWordmark = document.querySelector(".brand-wordmark");
     const socialMini = document.querySelector(".social-mini");
+
+    const closeNav = () => {
+      nav.classList.remove("open");
+      nav.style.display = "";
+      toggle.setAttribute("aria-expanded", "false");
+    };
+
+    const openNav = () => {
+      nav.classList.add("open");
+      nav.style.display = "flex";
+      toggle.setAttribute("aria-expanded", "true");
+    };
 
     const syncHeaderMode = () => {
       const tabletMenu = window.matchMedia && window.matchMedia("(min-width: 760px) and (max-width: 1046px)").matches;
@@ -116,11 +128,10 @@ function renderLayout() {
         socialMini?.style.setProperty("display", "flex", "important");
         socialMini?.style.setProperty("visibility", "visible", "important");
         socialMini?.style.setProperty("flex-shrink", "0", "important");
-        nav.classList.remove("open");
+        closeNav();
         nav.style.display = "none";
         toggle.style.display = "inline-flex";
         toggle.style.setProperty("flex-shrink", "0", "important");
-        toggle.setAttribute("aria-expanded", "false");
       } else {
         topbarWrap?.style.removeProperty("display");
         topbarWrap?.style.removeProperty("grid-auto-flow");
@@ -136,7 +147,7 @@ function renderLayout() {
         socialMini?.style.removeProperty("display");
         socialMini?.style.removeProperty("visibility");
         socialMini?.style.removeProperty("flex-shrink");
-        nav.style.display = "";
+        closeNav();
         toggle.style.display = "";
         toggle.style.removeProperty("flex-shrink");
       }
@@ -144,8 +155,21 @@ function renderLayout() {
 
     toggle.addEventListener("click", () => {
       const open = nav.classList.toggle("open");
-      toggle.setAttribute("aria-expanded", String(open));
-      if (open) nav.style.display = "flex";
+      if (open) openNav();
+      else closeNav();
+    });
+
+    nav.addEventListener("click", (e) => {
+      if (e.target.closest("a")) closeNav();
+    });
+
+    document.addEventListener("click", (e) => {
+      const tabletMenu = window.matchMedia && window.matchMedia("(min-width: 760px) and (max-width: 1046px)").matches;
+      const mobileMenu = window.matchMedia && window.matchMedia("(max-width: 759px)").matches;
+      if (!mobileMenu && !tabletMenu) return;
+      if (!nav.classList.contains("open")) return;
+      if (nav.contains(e.target) || toggle.contains(e.target)) return;
+      closeNav();
     });
 
     syncHeaderMode();
