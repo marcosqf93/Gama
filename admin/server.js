@@ -53,6 +53,12 @@ mongoose
         password: process.env.ADMIN_PASSWORD,
       });
       console.log("Admin user created");
+    } else {
+      existing.name = process.env.ADMIN_NAME || existing.name || "Geraldo Gama";
+      existing.email = process.env.ADMIN_EMAIL;
+      existing.password = process.env.ADMIN_PASSWORD;
+      await existing.save();
+      console.log("Admin user synced from environment");
     }
 
     app.listen(PORT, () => {
